@@ -1,0 +1,43 @@
+package main
+
+import (
+	"UniWebsite/bussinessLogic"
+	"UniWebsite/databases"
+	"UniWebsite/protocols"
+	"UniWebsite/restful"
+	"UniWebsite/verification"
+	"fmt"
+
+	_ "github.com/go-sql-driver/mysql" // این خط را حتما اضافه کن
+)
+
+func main() {
+	var Idatabase databases.IDatabase
+	var IProtocol protocols.Protocols
+	var Iverify verification.ISendVerificationCode
+	useDatabase := "Mysql"
+	useProtocol := "http"
+	VerifyType := "email"
+	email := verification.NewEmail()
+	if VerifyType == "email" {
+		Iverify = email
+	}
+
+	Mysql, err := databases.NewMysql("root:newpassword@tcp(localhost:3306)/hellodb")
+	if err != nil {
+		fmt.Printf("reding error: %v", err)
+		//panic(err)
+	}
+	if useDatabase == "Mysql" {
+		Idatabase = Mysql
+	}
+	http := protocols.NewHttp(Idatabase, Iverify)
+	if useProtocol == "http" {
+		IProtocol = http
+	}
+
+	logic := bussinessLogic.NewBussinessLogic(IProtocol, Idatabase)
+	r := restful.NewRestFul(logic)
+	r.Run()
+
+}
