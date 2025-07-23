@@ -173,18 +173,15 @@ func (h Http) Verify(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("clientCode: ", clientinfo.Code, "userInfo: ", userInfo.Code)
 	if clientinfo.Code != userInfo.Code {
 		http.Error(w, "Invalid code", http.StatusUnauthorized)
-		return // این return یادت نره!
+		return
 	}
 
-	// ساخت توکن
 	tokenStr := auth.GenerateJWT(clientinfo.Id, username, roleSlice)
 
-	// حذف کد یک‌بار مصرف
 	mu.Lock()
 	delete(verificationCodes, clientinfo.Id)
 	mu.Unlock()
 
-	// ارسال پاسخ
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(map[string]string{"token": tokenStr})
