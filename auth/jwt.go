@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -18,6 +19,10 @@ type Claims struct {
 }
 
 var jwtkey = []byte("secret-key")
+
+type contextKey string
+
+const userIDKey contextKey = "userID"
 
 func IsValidPassword(password string) bool {
 	re := regexp.MustCompile(`^[a-zA-Z0-9]{6,}$`)
@@ -74,6 +79,7 @@ func AdminJwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
+		fmt.Println("claim: ", claims)
 		valid := false
 		for _, v := range claims.Role {
 			if v == "1" {
@@ -89,5 +95,96 @@ func AdminJwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 		// اگه همه چیز اوکی بود، بره سراغ هندلر اصلی
 		next(w, r)
+	}
+}
+func StudentJwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// CORS headers
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// پاسخ به preflight
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+
+		}
+
+		// توکن چک کردن
+		authHeader := r.Header.Get("Authorization")
+		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+		claims := &Claims{}
+
+		tkn, err := jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (interface{}, error) {
+			return jwtkey, nil
+		})
+		fmt.Println("token is: ", tokenStr)
+		if err != nil || !tkn.Valid {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		valid := false
+		for _, v := range claims.Role {
+			if v == "2" {
+				valid = true
+
+			}
+
+		}
+		if !valid {
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+
+		// اگه همه چیز اوکی بود، بره سراغ هندلر اصلی
+		ctx := context.WithValue(r.Context(), userIDKey, claims.Id)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	}
+}
+func ProfessorjwtMiddleware3(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// CORS headers
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// پاسخ به preflight
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+
+		}
+
+		// توکن چک کردن
+		authHeader := r.Header.Get("Authorization")
+		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+		claims := &Claims{}
+
+		tkn, err := jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (interface{}, error) {
+			return jwtkey, nil
+		})
+		fmt.Println("token is: ", tokenStr)
+		if err != nil || !tkn.Valid {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		fmt.Println("claimedrole: ", claims.Role)
+		valid := false
+		for _, v := range claims.Role {
+			if v == "3" {
+				valid = true
+
+			}
+
+		}
+		if !valid {
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), userIDKey, claims.Id)
+		next.ServeHTTP(w, r.WithContext(ctx))
+
 	}
 }
