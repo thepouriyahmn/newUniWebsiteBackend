@@ -15,4 +15,6 @@ type Protocols interface {
 	GetUsersByRole(w http.ResponseWriter, r *http.Request)
 	AddMark(w http.ResponseWriter, r *http.Request)
 	GetStudentsForProfessor(w http.ResponseWriter, r *http.Request)
+	AddStudentUnit(w http.ResponseWriter, r *http.Request)
+	DelStudentUnit(w http.ResponseWriter, r *http.Request)
 }

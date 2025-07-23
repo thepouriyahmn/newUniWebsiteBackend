@@ -7,6 +7,7 @@ import (
 	"UniWebsite/restful"
 	"UniWebsite/verification"
 	"fmt"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql" // این خط را حتما اضافه کن
 )
@@ -26,14 +27,22 @@ func main() {
 	Mysql, err := databases.NewMysql("root:newpassword@tcp(localhost:3306)/hellodb")
 	if err != nil {
 		fmt.Printf("reding error: %v", err)
-		//panic(err)
+		os.Exit(1)
 	}
 	if useDatabase == "Mysql" {
 		Idatabase = Mysql
 	}
+	if Idatabase == nil {
+		fmt.Println("Database is nil. Exiting.")
+		os.Exit(1)
+	}
 	http := protocols.NewHttp(Idatabase, Iverify)
 	if useProtocol == "http" {
 		IProtocol = http
+	}
+	if IProtocol == nil {
+		fmt.Println("Protocol is nil. Exiting.")
+		os.Exit(1)
 	}
 
 	logic := bussinessLogic.NewBussinessLogic(IProtocol, Idatabase)

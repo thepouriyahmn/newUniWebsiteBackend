@@ -22,6 +22,7 @@ type IDatabase interface {
 	GetUsersByRole(roleId int) ([]User, error)
 	AddMark(userId, classId int, mark *int) error
 	GetStudentsForProfessor(professorId int) ([]Student, error)
+	RemoveStudentUnit(id int) error
 }
 type IProtocol interface {
 	SignUp(w http.ResponseWriter, r *http.Request)
@@ -36,6 +37,8 @@ type IProtocol interface {
 	GetUsersByRole(w http.ResponseWriter, r *http.Request)
 	AddMark(w http.ResponseWriter, r *http.Request)
 	GetStudentsForProfessor(w http.ResponseWriter, r *http.Request)
+	AddStudentUnit(w http.ResponseWriter, r *http.Request)
+	DelStudentUnit(w http.ResponseWriter, r *http.Request)
 }
 type AuthBussinessLogic struct {
 	IProtocol IProtocol
@@ -84,4 +87,8 @@ func (b AuthBussinessLogic) AddMark(userId, classId int, mark *int) error {
 
 func (b AuthBussinessLogic) ShowStudentsForProfessor(professorId int) ([]Student, error) {
 	return b.IDatabase.GetStudentsForProfessor(professorId)
+}
+
+func (b AuthBussinessLogic) RemoveStudentUnit(id int) error {
+	return b.IDatabase.RemoveStudentUnit(id)
 }

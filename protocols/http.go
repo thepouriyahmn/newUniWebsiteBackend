@@ -147,6 +147,7 @@ func (h Http) Verify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	roleSlice, username, err := h.Database.GetRole(clientinfo.Id)
+	fmt.Println("roleslice: ", roleSlice)
 	if err != nil {
 		http.Error(w, "Failed to get user role", http.StatusInternalServerError)
 		return
@@ -176,6 +177,7 @@ func (h Http) Verify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tokenStr := auth.GenerateJWT(clientinfo.Id, username, roleSlice)
+	fmt.Println("token created: ", tokenStr)
 
 	mu.Lock()
 	delete(verificationCodes, clientinfo.Id)
@@ -192,10 +194,14 @@ func (h Http) Verify(w http.ResponseWriter, r *http.Request) {
 func (h Http) GetAllProfessors(w http.ResponseWriter, r *http.Request) {
 	professorSlice, err := h.Database.GetAllProfessors()
 	if err != nil {
+		fmt.Println("http err")
 		http.Error(w, "professors not found in db", http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(professorSlice)
+	err = json.NewEncoder(w).Encode(professorSlice)
+	if err != nil {
+		http.Error(w, "professors not found in db", http.StatusInternalServerError)
+	}
 }
 
 func (h Http) AddProfessor(w http.ResponseWriter, r *http.Request) {
@@ -222,7 +228,10 @@ func (h Http) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Http) InsertLesson(w http.ResponseWriter, r *http.Request) {
-	var req struct{ LessonName string; LessonUnit int }
+	var req struct {
+		LessonName string
+		LessonUnit int
+	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
@@ -273,7 +282,10 @@ func (h Http) GetUsersByRole(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Http) AddMark(w http.ResponseWriter, r *http.Request) {
-	var req struct{ UserId, ClassId int; Mark *int }
+	var req struct {
+		UserId, ClassId int
+		Mark            *int
+	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
@@ -298,4 +310,33 @@ func (h Http) GetStudentsForProfessor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	json.NewEncoder(w).Encode(students)
+}
+
+func (h Http) AddStudentUnit(w http.ResponseWriter, r *http.Request) {
+	var req struct{ Id int }
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+	err := h.Database.AddStudent(req.Id)
+	if err != nil {
+		http.Error(w, "Failed to add student unit", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+}
+
+func (h Http) DelStudentUnit(w http.ResponseWriter, r *http.Request) {
+	var req struct{ Id int }
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+	// فرض بر این است که متد RemoveStudentUnit در Database وجود دارد
+	err := h.Database.RemoveStudentUnit(req.Id)
+	if err != nil {
+		http.Error(w, "Failed to delete student unit", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }

@@ -20,4 +20,5 @@ type IDatabase interface {
 	GetUsersByRole(roleId int) ([]bussinessLogic.User, error)
 	AddMark(userId, classId int, mark *int) error
 	GetStudentsForProfessor(professorId int) ([]bussinessLogic.Student, error)
+	RemoveStudentUnit(id int) error
 }

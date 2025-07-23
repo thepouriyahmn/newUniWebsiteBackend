@@ -24,18 +24,20 @@ func (rest Restful) Run() {
 	http.HandleFunc("/login", rest.Login1)
 	http.HandleFunc("/verify", rest.Verify)
 	http.HandleFunc("/showProfessors", auth.AdminJwtMiddleware(rest.showProfessors))
-	http.HandleFunc("/addProfessor", rest.addProfessor)
-	http.HandleFunc("/showAllUsers", rest.showAllUsers)
-	http.HandleFunc("/insertLesson", rest.insertLesson)
-	http.HandleFunc("/deleteLesson", rest.deleteLesson)
+	http.HandleFunc("/addProfessor", auth.AdminJwtMiddleware(rest.addProfessor))
+	http.HandleFunc("/showAllUsers", auth.AdminJwtMiddleware(rest.showAllUsers))
+	http.HandleFunc("/insertLesson", auth.AdminJwtMiddleware(rest.insertLesson))
+	http.HandleFunc("/deleteLesson", auth.AdminJwtMiddleware(rest.deleteLesson))
 	http.HandleFunc("/showAllLessons", rest.showAllLessons)
 	http.HandleFunc("/showUsersByRole", rest.showUsersByRole)
 	http.HandleFunc("/addMark", rest.addMark)
 	http.HandleFunc("/showStudentsForProfessor", rest.showStudentsForProfessor)
+	http.HandleFunc("/add", rest.addStudentUnit)
+	http.HandleFunc("/delStudentUnit", rest.delStudentUnit)
 	err := http.ListenAndServe(":8081", nil)
 	if err != nil {
 		fmt.Printf("reding error: %v", err)
-		//	panic(err)
+		panic(err)
 	}
 }
 func (rest Restful) SignUp(w http.ResponseWriter, r *http.Request) {
@@ -115,4 +117,12 @@ func (rest Restful) addMark(w http.ResponseWriter, r *http.Request) {
 
 func (rest Restful) showStudentsForProfessor(w http.ResponseWriter, r *http.Request) {
 	rest.AuthBussinessLogic.IProtocol.GetStudentsForProfessor(w, r)
+}
+
+func (rest Restful) addStudentUnit(w http.ResponseWriter, r *http.Request) {
+	rest.AuthBussinessLogic.IProtocol.AddStudentUnit(w, r)
+}
+
+func (rest Restful) delStudentUnit(w http.ResponseWriter, r *http.Request) {
+	rest.AuthBussinessLogic.IProtocol.DelStudentUnit(w, r)
 }

@@ -109,6 +109,7 @@ func (m Mysql) GetRole(id int) ([]string, string, error) {
 			//panic(err)
 		}
 		roleslice = append(roleslice, role)
+
 	}
 	var username string
 	row2 := m.db.QueryRow("SELECT username from users where ID = ?", id)
@@ -118,6 +119,7 @@ func (m Mysql) GetRole(id int) ([]string, string, error) {
 		fmt.Printf("reading error: %v", err)
 		return []string{}, "", errors.New("")
 	}
+	fmt.Println("roleslice in db: ", roleslice)
 	return roleslice, username, nil
 }
 func (m Mysql) GetAllProfessors() ([]bussinessLogic.Professor, error) {
@@ -238,4 +240,12 @@ func (m Mysql) GetStudentsForProfessor(professorId int) ([]bussinessLogic.Studen
 		students = append(students, s)
 	}
 	return students, nil
+}
+
+func (m Mysql) RemoveStudentUnit(id int) error {
+	_, err := m.db.Exec("DELETE FROM student_units WHERE id = ?", id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
