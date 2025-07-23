@@ -1,7 +1,9 @@
 package restful
 
 import (
+	"UniWebsite/auth"
 	"UniWebsite/bussinessLogic"
+
 	"fmt"
 	"net/http"
 )
@@ -21,6 +23,15 @@ func (rest Restful) Run() {
 
 	http.HandleFunc("/login", rest.Login1)
 	http.HandleFunc("/verify", rest.Verify)
+	http.HandleFunc("/showProfessors", auth.AdminJwtMiddleware(rest.showProfessors))
+	http.HandleFunc("/addProfessor", rest.addProfessor)
+	http.HandleFunc("/showAllUsers", rest.showAllUsers)
+	http.HandleFunc("/insertLesson", rest.insertLesson)
+	http.HandleFunc("/deleteLesson", rest.deleteLesson)
+	http.HandleFunc("/showAllLessons", rest.showAllLessons)
+	http.HandleFunc("/showUsersByRole", rest.showUsersByRole)
+	http.HandleFunc("/addMark", rest.addMark)
+	http.HandleFunc("/showStudentsForProfessor", rest.showStudentsForProfessor)
 	err := http.ListenAndServe(":8081", nil)
 	if err != nil {
 		fmt.Printf("reding error: %v", err)
@@ -69,4 +80,39 @@ func (rest Restful) Verify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rest.AuthBussinessLogic.IProtocol.Verify(w, r)
+}
+func (rest Restful) showProfessors(w http.ResponseWriter, r *http.Request) {
+	rest.AuthBussinessLogic.IProtocol.GetAllProfessors(w, r)
+}
+
+func (rest Restful) addProfessor(w http.ResponseWriter, r *http.Request) {
+	rest.AuthBussinessLogic.IProtocol.AddProfessor(w, r)
+}
+
+func (rest Restful) showAllUsers(w http.ResponseWriter, r *http.Request) {
+	rest.AuthBussinessLogic.IProtocol.GetAllUsers(w, r)
+}
+
+func (rest Restful) insertLesson(w http.ResponseWriter, r *http.Request) {
+	rest.AuthBussinessLogic.IProtocol.InsertLesson(w, r)
+}
+
+func (rest Restful) deleteLesson(w http.ResponseWriter, r *http.Request) {
+	rest.AuthBussinessLogic.IProtocol.DeleteLesson(w, r)
+}
+
+func (rest Restful) showAllLessons(w http.ResponseWriter, r *http.Request) {
+	rest.AuthBussinessLogic.IProtocol.GetAllLessons(w, r)
+}
+
+func (rest Restful) showUsersByRole(w http.ResponseWriter, r *http.Request) {
+	rest.AuthBussinessLogic.IProtocol.GetUsersByRole(w, r)
+}
+
+func (rest Restful) addMark(w http.ResponseWriter, r *http.Request) {
+	rest.AuthBussinessLogic.IProtocol.AddMark(w, r)
+}
+
+func (rest Restful) showStudentsForProfessor(w http.ResponseWriter, r *http.Request) {
+	rest.AuthBussinessLogic.IProtocol.GetStudentsForProfessor(w, r)
 }

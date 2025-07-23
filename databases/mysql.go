@@ -1,6 +1,7 @@
 package databases
 
 import (
+	"UniWebsite/bussinessLogic"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -118,4 +119,123 @@ func (m Mysql) GetRole(id int) ([]string, string, error) {
 		return []string{}, "", errors.New("")
 	}
 	return roleslice, username, nil
+}
+func (m Mysql) GetAllProfessors() ([]bussinessLogic.Professor, error) {
+	var professor bussinessLogic.Professor
+	var professorSlice []bussinessLogic.Professor
+
+	rows, err := m.db.Query("SELECT users.username,user_roles.user_id FROM user_roles INNER JOIN users ON user_roles.user_id=users.ID WHERE user_roles.role_id = ?", 3)
+	if err != nil {
+		fmt.Printf("reading query error: %v", err)
+		return []bussinessLogic.Professor{}, errors.New("")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&professor.Name, &professor.Id)
+		if err != nil {
+			fmt.Printf("reading scan error: %v", err)
+			return []bussinessLogic.Professor{}, errors.New("")
+		}
+		professorSlice = append(professorSlice, professor)
+
+	}
+	return professorSlice, nil
+}
+
+func (m Mysql) AddProfessor(userId int) error {
+	_, err := m.db.Exec("INSERT INTO user_roles(user_id,role_id) VALUES (?, ?)", userId, 3)
+	return err
+}
+
+func (m Mysql) AddStudent(userId int) error {
+	_, err := m.db.Exec("INSERT INTO user_roles(user_id,role_id) VALUES (?, ?)", userId, 2)
+	return err
+}
+
+func (m Mysql) GetAllUsers() ([]bussinessLogic.User, error) {
+	var users []bussinessLogic.User
+	rows, err := m.db.Query("SELECT username,claim_student,claim_professor,ID FROM users")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var u bussinessLogic.User
+		err = rows.Scan(&u.Username, &u.StudentRole, &u.StudentRole, &u.Id)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, u)
+	}
+	return users, nil
+}
+
+func (m Mysql) InsertLesson(lessonName string, lessonUnit int) error {
+	_, err := m.db.Exec("INSERT INTO lessons(lesson_name,lesson_unit) VALUES (?,?)", lessonName, lessonUnit)
+	return err
+}
+
+func (m Mysql) DeleteLesson(lessonName string) error {
+	_, err := m.db.Exec("DELETE FROM lessons WHERE lesson_name = ?", lessonName)
+	return err
+}
+
+func (m Mysql) GetAllLessons() ([]bussinessLogic.Lesson, error) {
+	var lessons []bussinessLogic.Lesson
+	rows, err := m.db.Query("SELECT lesson_id,lesson_name,lesson_unit FROM lessons")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var l bussinessLogic.Lesson
+		err = rows.Scan(&l.Id, &l.LessonName, &l.LessonUnit)
+		if err != nil {
+			return nil, err
+		}
+		lessons = append(lessons, l)
+	}
+	return lessons, nil
+}
+
+func (m Mysql) GetUsersByRole(roleId int) ([]bussinessLogic.User, error) {
+	var users []bussinessLogic.User
+	rows, err := m.db.Query("SELECT users.username,user_roles.user_id FROM user_roles INNER JOIN users ON user_roles.user_id=users.ID WHERE user_roles.role_id = ?", roleId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var u bussinessLogic.User
+		err = rows.Scan(&u.Username, &u.Id)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, u)
+	}
+	return users, nil
+}
+
+func (m Mysql) AddMark(userId, classId int, mark *int) error {
+	_, err := m.db.Exec("UPDATE users_classes SET mark = ? WHERE user_class_id = ? AND class_id = ?", mark, userId, classId)
+	return err
+}
+
+func (m Mysql) GetStudentsForProfessor(professorId int) ([]bussinessLogic.Student, error) {
+	var students []bussinessLogic.Student
+	rows, err := m.db.Query(`SELECT u.username, v.lesson_name, v.class_number, v.class_time, v.user_class_id, v.class_id, v.mark FROM users_classes_view v JOIN users u ON v.user_class_id = u.id WHERE v.username = (SELECT username FROM users WHERE ID = ?)`, professorId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var s bussinessLogic.Student
+		err = rows.Scan(&s.Name, &s.Lesson, &s.Class, new(string), new(int), new(int), &s.Mark)
+		if err != nil {
+			return nil, err
+		}
+		students = append(students, s)
+	}
+	return students, nil
 }

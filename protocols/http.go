@@ -130,7 +130,6 @@ func (h Http) Login(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Printf("reading error: %v", err)
 		}
-		fmt.Println("ok2")
 
 	}
 }
@@ -189,4 +188,114 @@ func (h Http) Verify(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to respond with token", http.StatusInternalServerError)
 		return
 	}
+}
+func (h Http) GetAllProfessors(w http.ResponseWriter, r *http.Request) {
+	professorSlice, err := h.Database.GetAllProfessors()
+	if err != nil {
+		http.Error(w, "professors not found in db", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(professorSlice)
+}
+
+func (h Http) AddProfessor(w http.ResponseWriter, r *http.Request) {
+	var req struct{ Id int }
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+	err := h.Database.AddProfessor(req.Id)
+	if err != nil {
+		http.Error(w, "Failed to add professor", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+}
+
+func (h Http) GetAllUsers(w http.ResponseWriter, r *http.Request) {
+	users, err := h.Database.GetAllUsers()
+	if err != nil {
+		http.Error(w, "Failed to get users", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(users)
+}
+
+func (h Http) InsertLesson(w http.ResponseWriter, r *http.Request) {
+	var req struct{ LessonName string; LessonUnit int }
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+	err := h.Database.InsertLesson(req.LessonName, req.LessonUnit)
+	if err != nil {
+		http.Error(w, "Failed to insert lesson", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+}
+
+func (h Http) DeleteLesson(w http.ResponseWriter, r *http.Request) {
+	var req struct{ LessonName string }
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+	err := h.Database.DeleteLesson(req.LessonName)
+	if err != nil {
+		http.Error(w, "Failed to delete lesson", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h Http) GetAllLessons(w http.ResponseWriter, r *http.Request) {
+	lessons, err := h.Database.GetAllLessons()
+	if err != nil {
+		http.Error(w, "Failed to get lessons", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(lessons)
+}
+
+func (h Http) GetUsersByRole(w http.ResponseWriter, r *http.Request) {
+	var req struct{ RoleId int }
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+	users, err := h.Database.GetUsersByRole(req.RoleId)
+	if err != nil {
+		http.Error(w, "Failed to get users by role", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(users)
+}
+
+func (h Http) AddMark(w http.ResponseWriter, r *http.Request) {
+	var req struct{ UserId, ClassId int; Mark *int }
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+	err := h.Database.AddMark(req.UserId, req.ClassId, req.Mark)
+	if err != nil {
+		http.Error(w, "Failed to add mark", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h Http) GetStudentsForProfessor(w http.ResponseWriter, r *http.Request) {
+	var req struct{ ProfessorId int }
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+	students, err := h.Database.GetStudentsForProfessor(req.ProfessorId)
+	if err != nil {
+		http.Error(w, "Failed to get students for professor", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(students)
 }
