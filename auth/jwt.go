@@ -2,25 +2,30 @@ package auth
 
 import (
 	"fmt"
+	"net/http"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
+type Claims struct {
+	Username string
+	Role     []string
+	Id       int
+	jwt.StandardClaims
+}
+
+var jwtkey = []byte("secret-key")
+
 func IsValidPassword(password string) bool {
 	re := regexp.MustCompile(`^[a-zA-Z0-9]{6,}$`)
 	return re.MatchString(password)
 }
+
 func GenerateJWT(id int, username string, roleSlice []string) string {
 
-	type Claims struct {
-		Username string
-		Role     []string
-		Id       int
-		jwt.StandardClaims
-	}
-	var jwtkey = []byte("secret-key")
 	if len(roleSlice) == 0 {
 		roleSlice = []string{}
 	}
@@ -41,4 +46,48 @@ func GenerateJWT(id int, username string, roleSlice []string) string {
 
 	}
 	return tokenString
+}
+func AdminJwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// CORS headers
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// پاسخ به preflight
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+
+		}
+
+		// توکن چک کردن
+		authHeader := r.Header.Get("Authorization")
+		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+		claims := &Claims{}
+
+		tkn, err := jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (interface{}, error) {
+			return jwtkey, nil
+		})
+		fmt.Println("token is: ", tokenStr)
+		if err != nil || !tkn.Valid {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		valid := false
+		for _, v := range claims.Role {
+			if v == "1" {
+				valid = true
+
+			}
+
+		}
+		if !valid {
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+
+		// اگه همه چیز اوکی بود، بره سراغ هندلر اصلی
+		next(w, r)
+	}
 }
