@@ -162,7 +162,7 @@ func (m Mysql) GetAllUsers() ([]bussinessLogic.User, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var u bussinessLogic.User
-		err = rows.Scan(&u.Username, &u.StudentRole, &u.StudentRole, &u.Id)
+		err = rows.Scan(&u.Username, &u.StudentRole, &u.ProfessorRole, &u.Id)
 		if err != nil {
 			return nil, err
 		}

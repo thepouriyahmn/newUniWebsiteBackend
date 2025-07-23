@@ -43,10 +43,11 @@ func (h Http) SignUp(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "invalid password", http.StatusBadRequest)
 			return
 		}
-		err = h.Database.CheackUserByUsernameAndEmail(user.Username, user.Email)
-		if err != nil {
-			http.Error(w, "Username or email already exists", http.StatusConflict)
-		}
+			err = h.Database.CheackUserByUsernameAndEmail(user.Username, user.Email)
+	if err != nil {
+		http.Error(w, "Username or email already exists", http.StatusConflict)
+		return
+	}
 
 		err = h.Database.InsertUser(user.Username, user.Password, user.Email, user.StudentRole, user.ProfessorRole)
 		if err != nil {
