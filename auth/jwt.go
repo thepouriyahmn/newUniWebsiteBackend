@@ -22,7 +22,7 @@ var jwtkey = []byte("secret-key")
 
 type contextKey string
 
-const userIDKey contextKey = "userID"
+const UserIDKey contextKey = "userID"
 
 func IsValidPassword(password string) bool {
 	re := regexp.MustCompile(`^[a-zA-Z0-9]{6,}$`)
@@ -51,6 +51,37 @@ func GenerateJWT(id int, username string, roleSlice []string) string {
 
 	}
 	return tokenString
+}
+func NormalJwtmiddleWare(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// CORS headers
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// پاسخ به preflight
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+
+		}
+
+		// توکن چک کردن
+		authHeader := r.Header.Get("Authorization")
+		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+		claims := &Claims{}
+
+		tkn, err := jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (interface{}, error) {
+			return jwtkey, nil
+		})
+		fmt.Println("token is: ", tokenStr)
+		if err != nil || !tkn.Valid {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		fmt.Println("claim: ", claims)
+		next(w, r)
+	}
 }
 func AdminJwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -138,7 +169,7 @@ func StudentJwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		// اگه همه چیز اوکی بود، بره سراغ هندلر اصلی
-		ctx := context.WithValue(r.Context(), userIDKey, claims.Id)
+		ctx := context.WithValue(r.Context(), UserIDKey, claims.Id)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }
@@ -183,7 +214,7 @@ func ProfessorjwtMiddleware3(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), userIDKey, claims.Id)
+		ctx := context.WithValue(r.Context(), UserIDKey, claims.Id)
 		next.ServeHTTP(w, r.WithContext(ctx))
 
 	}

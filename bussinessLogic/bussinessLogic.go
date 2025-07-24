@@ -18,14 +18,15 @@ type IDatabase interface {
 	DeleteLesson(lessonName string) error
 	GetAllLessons() ([]Lesson, error)
 	GetUsersByRole(roleId int) ([]User, error)
-	AddMark(userId, classId int, mark *int) error
-	GetStudentsForProfessor(professorId int) ([]Student, error)
-	RemoveStudentUnit(id int) error
+	AddMark(userId, classId int, mark int) error
+	GetStudentsForProfessor(professorId int) ([]Student2, error)
+	RemoveStudentUnit(id int, userid int) error
 	GetAllClasses() ([]Classes, error)
 	DeleteClass(classId int) error
 	AddStudentById(userId int) error
 }
 type IProtocol interface {
+	ShowPickedUnitsForStudent(w http.ResponseWriter, r *http.Request)
 	SignUp(w http.ResponseWriter, r *http.Request)
 	Login(w http.ResponseWriter, r *http.Request)
 	Verify(w http.ResponseWriter, r *http.Request)
@@ -86,14 +87,14 @@ func (b AuthBussinessLogic) ShowUsersByRole(roleId int) ([]User, error) {
 	return b.IDatabase.GetUsersByRole(roleId)
 }
 
-func (b AuthBussinessLogic) AddMark(userId, classId int, mark *int) error {
+func (b AuthBussinessLogic) AddMark(userId, classId int, mark int) error {
 	return b.IDatabase.AddMark(userId, classId, mark)
 }
 
-func (b AuthBussinessLogic) ShowStudentsForProfessor(professorId int) ([]Student, error) {
+func (b AuthBussinessLogic) ShowStudentsForProfessor(professorId int) ([]Student2, error) {
 	return b.IDatabase.GetStudentsForProfessor(professorId)
 }
 
-func (b AuthBussinessLogic) RemoveStudentUnit(id int) error {
-	return b.IDatabase.RemoveStudentUnit(id)
+func (b AuthBussinessLogic) RemoveStudentUnit(id int, userid int) error {
+	return b.IDatabase.RemoveStudentUnit(id, userid)
 }

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 
 	_ "github.com/go-sql-driver/mysql" // این خط را حتما اضافه کن
 	"golang.org/x/crypto/bcrypt"
@@ -242,32 +243,44 @@ func (m Mysql) GetUsersByRole(roleId int) ([]bussinessLogic.User, error) {
 	return users, nil
 }
 
-func (m Mysql) AddMark(userId, classId int, mark *int) error {
+func (m Mysql) AddMark(userId, classId int, mark int) error {
+	fmt.Println("userid: ", userId)
+	fmt.Println("classid: ", classId)
+	fmt.Println("mark: ", mark)
 	_, err := m.db.Exec("UPDATE users_classes SET mark = ? WHERE user_class_id = ? AND class_id = ?", mark, userId, classId)
 	return err
 }
 
-func (m Mysql) GetStudentsForProfessor(professorId int) ([]bussinessLogic.Student, error) {
-	var students []bussinessLogic.Student
+func (m Mysql) GetStudentsForProfessor(professorId int) ([]bussinessLogic.Student2, error) {
+	var students []bussinessLogic.Student2
+	fmt.Println("professor id: ", professorId)
 	rows, err := m.db.Query(`SELECT u.username, v.lesson_name, v.class_number, v.class_time, v.user_class_id, v.class_id, v.mark FROM users_classes_view v JOIN users u ON v.user_class_id = u.id WHERE v.username = (SELECT username FROM users WHERE ID = ?)`, professorId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var s bussinessLogic.Student
-		err = rows.Scan(&s.Name, &s.Lesson, &s.Class, new(string), new(int), new(int), &s.Mark)
+		var s bussinessLogic.Student2
+		err = rows.Scan(&s.Name, &s.Lesson, &s.Class, &s.Date, &s.UserId, &s.ClassId, &s.Mark)
 		if err != nil {
 			return nil, err
 		}
 		students = append(students, s)
 	}
+	fmt.Println("student for pro: ", students)
 	return students, nil
 }
 
-func (m Mysql) RemoveStudentUnit(id int) error {
-	_, err := m.db.Exec("DELETE FROM student_units WHERE id = ?", id)
+func (m Mysql) RemoveStudentUnit(classid int, userid int) error {
+	stmt, err := m.db.Prepare("DELETE FROM users_classes WHERE class_id = ? AND user_class_id = ?")
 	if err != nil {
+		fmt.Printf("reading error: %v", err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(classid, userid)
+	if err != nil {
+		fmt.Printf("reading error: %v", err)
 		return err
 	}
 	return nil
@@ -373,6 +386,96 @@ func (m Mysql) AddStudentById(userId int) error {
 	_, err = m.db.Exec("INSERT INTO user_roles(user_id,role_id) VALUES (?, ?)", userId, 2)
 	if err != nil {
 
+		return err
+	}
+	return nil
+}
+func (m Mysql) GetClassesByUserId(userID int) ([]bussinessLogic.StudentClasses, error) {
+	var lesson []bussinessLogic.StudentClasses
+	var nullableMark sql.NullInt64
+	fmt.Println("userid: ", userID)
+	var registered int
+	rows, err := m.db.Query("SELECT `lesson_unit`,`lesson_name`,`username`,`class_id`,`class_number`,`capacity`,`class_time`,`mark`FROM users_classes_view WHERE user_class_id = ?", userID)
+	if err != nil {
+		log.Println("Prepare statement error:", err)
+
+		return []bussinessLogic.StudentClasses{}, err
+	}
+	defer rows.Close()
+	var classes2 bussinessLogic.StudentClasses
+	for rows.Next() {
+
+		err = rows.Scan(&classes2.LessonUnit, &classes2.LessonName, &classes2.ProfessorName, &classes2.Id, &classes2.ClassNumber, &classes2.Capacity, &classes2.Date, &nullableMark)
+
+		if err != nil {
+			log.Println("scan statement error: ", err)
+
+			return []bussinessLogic.StudentClasses{}, err
+		}
+		if nullableMark.Valid {
+			classes2.Mark = int(nullableMark.Int64)
+		} else {
+			classes2.Mark = -1 // یا مقدار پیش‌فرضی که می‌خوای بذاری
+		}
+		err = m.db.QueryRow("SELECT COUNT(*) FROM users_classes WHERE class_id = ?", classes2.Id).Scan(&registered)
+		if err != nil {
+			panic(err)
+		}
+		LeftCapacity := classes2.Capacity - registered
+		if LeftCapacity == 0 {
+			classes2.Capacity = -1
+		}
+		lesson = append(lesson, classes2)
+
+	}
+	fmt.Println("classes: ", lesson)
+	return lesson, nil
+}
+func (m Mysql) InsertUnitForStudent(userid, classid int) error {
+
+	var registered, capacity int
+	err := m.db.QueryRow("SELECT COUNT(*) FROM users_classes WHERE class_id = ?", classid).Scan(&registered)
+	if err != nil {
+		return err
+	}
+
+	err = m.db.QueryRow("SELECT capacity FROM classes WHERE class_id = ?", classid).Scan(&capacity)
+	if err != nil {
+		fmt.Printf("reading errorL %v:", err)
+
+	}
+
+	if capacity-registered == 0 {
+
+		return err
+	}
+	row, err := m.db.Query("SELECT `class_id`FROM users_classes WHERE `user_class_id` = ?", userid)
+	if err != nil {
+		fmt.Printf("reading errorL %v:", err)
+
+	}
+	defer row.Close()
+	var id int
+
+	var lessonId []int
+	for row.Next() {
+		err = row.Scan(&id)
+		if err != nil {
+			break
+		}
+		lessonId = append(lessonId, id)
+
+	}
+	fmt.Println(lessonId)
+	for _, v := range lessonId {
+		if v == classid {
+			return err
+		}
+	}
+
+	_, err = m.db.Exec("INSERT INTO users_classes(`user_class_id`,`class_id`) VALUE (?,?)", userid, classid)
+	if err != nil {
+		fmt.Printf("reading error: %v", err)
 		return err
 	}
 	return nil

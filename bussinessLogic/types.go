@@ -26,6 +26,16 @@ type Classes struct {
 	ProfessorName string `json:"professorName"`
 	Id            int    `json:"id"`
 }
+type StudentClasses struct {
+	LessonName    string `json:"lessonName"`
+	LessonUnit    int    `json:"lessonUnit"`
+	Date          string `json:"date"`
+	Capacity      int    `json:"capacity"`
+	ClassNumber   int    `json:"classNumber"`
+	ProfessorName string `json:"professorName"`
+	Id            int    `json:"id"`
+	Mark          int    `json:"mark"`
+}
 
 type Student struct {
 	Name   string `json:"name"`
@@ -33,4 +43,13 @@ type Student struct {
 	Mark   *int   `json:"mark"`
 	Class  int    `json:"class"`
 	Lesson string `json:"lesson"`
+}
+type Student2 struct {
+	Name    string `json:"studentName"`
+	UserId  int    `json:"userId"`
+	Mark    *int   `json:"mark"`
+	Class   int    `json:"classNumber"`
+	Lesson  string `json:"lessonName"`
+	Date    string `json:"date"`
+	ClassId int    `json:"classId"`
 }

@@ -22,4 +22,5 @@ type Protocols interface {
 	ShowClasses(w http.ResponseWriter, r *http.Request)
 	DeleteClass(w http.ResponseWriter, r *http.Request)
 	AddStudent(w http.ResponseWriter, r *http.Request)
+	ShowPickedUnitsForStudent(w http.ResponseWriter, r *http.Request)
 }

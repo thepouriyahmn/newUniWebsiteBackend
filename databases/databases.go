@@ -23,7 +23,9 @@ type IDatabase interface {
 	GetAllLessons() ([]bussinessLogic.Lesson, error)
 	GetUsersByRole(roleId int) ([]bussinessLogic.User, error)
 	AddStudentById(userId int) error
-	AddMark(userId, classId int, mark *int) error
-	GetStudentsForProfessor(professorId int) ([]bussinessLogic.Student, error)
-	RemoveStudentUnit(id int) error
+	AddMark(userId, classId int, mark int) error
+	GetStudentsForProfessor(professorId int) ([]bussinessLogic.Student2, error)
+	RemoveStudentUnit(classid int, userid int) error
+	GetClassesByUserId(userID int) ([]bussinessLogic.StudentClasses, error)
+	InsertUnitForStudent(userid int, classid int) error
 }

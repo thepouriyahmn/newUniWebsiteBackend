@@ -290,15 +290,21 @@ func (h Http) GetUsersByRole(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Http) AddMark(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		UserId, ClassId int
-		Mark            *int
+	//userID := r.Context().Value(auth.UserIDKey).(int)
+	type Req struct {
+		Mark    int `json:"mark"`
+		UserId  int `json:"userId"`
+		ClassId int `json:"classId"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	var req Req
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
-	err := h.Database.AddMark(req.UserId, req.ClassId, req.Mark)
+	fmt.Println("recieved req: ", req)
+	err = h.Database.AddMark(req.UserId, req.ClassId, req.Mark)
 	if err != nil {
 		http.Error(w, "Failed to add mark", http.StatusInternalServerError)
 		return
@@ -307,12 +313,15 @@ func (h Http) AddMark(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Http) GetStudentsForProfessor(w http.ResponseWriter, r *http.Request) {
-	var req struct{ ProfessorId int }
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
-		return
-	}
-	students, err := h.Database.GetStudentsForProfessor(req.ProfessorId)
+	// var req struct{ ProfessorId int }
+	// if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	// 	http.Error(w, "Invalid request", http.StatusBadRequest)
+	// 	return
+	// }
+
+	userID := r.Context().Value(auth.UserIDKey).(int)
+
+	students, err := h.Database.GetStudentsForProfessor(userID)
 	if err != nil {
 		http.Error(w, "Failed to get students for professor", http.StatusInternalServerError)
 		return
@@ -321,27 +330,31 @@ func (h Http) GetStudentsForProfessor(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Http) AddStudentUnit(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(auth.UserIDKey).(int)
 	var req struct{ Id int }
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		fmt.Printf("reading errorL %v:", err)
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
-	err := h.Database.AddStudent(req.Id)
+	fmt.Println("req id: ", req.Id)
+	err := h.Database.InsertUnitForStudent(userID, req.Id)
 	if err != nil {
-		http.Error(w, "Failed to add student unit", http.StatusInternalServerError)
+		//http.Error(w, "Failed to add student unit", http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
 }
 
 func (h Http) DelStudentUnit(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(auth.UserIDKey).(int)
 	var req struct{ Id int }
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
 	// فرض بر این است که متد RemoveStudentUnit در Database وجود دارد
-	err := h.Database.RemoveStudentUnit(req.Id)
+	err := h.Database.RemoveStudentUnit(req.Id, userID)
 	if err != nil {
 		http.Error(w, "Failed to delete student unit", http.StatusInternalServerError)
 		return
@@ -421,4 +434,18 @@ func (h Http) AddStudent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to add student", http.StatusInternalServerError)
 		return
 	}
+}
+func (h Http) ShowPickedUnitsForStudent(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(auth.UserIDKey).(int)
+	classesSlice, err := h.Database.GetClassesByUserId(userID)
+	if err != nil {
+		http.Error(w, "Failed to add class", http.StatusInternalServerError)
+		return
+	}
+	err = json.NewEncoder(w).Encode(classesSlice)
+	if err != nil {
+		http.Error(w, "Failed to show class", http.StatusInternalServerError)
+		return
+	}
+
 }
