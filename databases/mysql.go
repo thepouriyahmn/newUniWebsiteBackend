@@ -178,9 +178,9 @@ func (m Mysql) AddStudent(userId int) error {
 	return err
 }
 
-func (m Mysql) GetAllUsers() ([]bussinessLogic.User, error) {
+func (m Mysql) GetAllUsers(input string) ([]bussinessLogic.User, error) {
 	var users []bussinessLogic.User
-	rows, err := m.db.Query("SELECT username,claim_student,claim_professor,ID FROM users")
+	rows, err := m.db.Query("SELECT username,claim_student,claim_professor,ID FROM users WHERE username LIKE ?", "%"+input+"%")
 	if err != nil {
 		return nil, err
 	}

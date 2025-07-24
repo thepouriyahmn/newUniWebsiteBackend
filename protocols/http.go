@@ -219,12 +219,20 @@ func (h Http) AddProfessor(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Http) GetAllUsers(w http.ResponseWriter, r *http.Request) {
-	users, err := h.Database.GetAllUsers()
+
+	input := r.URL.Query().Get("input")
+	fmt.Println("input:", input)
+	users, err := h.Database.GetAllUsers(input)
 	if err != nil {
 		http.Error(w, "Failed to get users", http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(users)
+	err = json.NewEncoder(w).Encode(users)
+	if err != nil {
+		fmt.Printf("reading error: %v", err)
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
 }
 
 func (h Http) InsertLesson(w http.ResponseWriter, r *http.Request) {

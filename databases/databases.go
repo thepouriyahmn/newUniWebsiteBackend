@@ -13,7 +13,7 @@ type IDatabase interface {
 	GetAllProfessors() ([]bussinessLogic.Professor, error)
 	AddProfessorById(userId int) error
 	AddStudent(userId int) error
-	GetAllUsers() ([]bussinessLogic.User, error)
+	GetAllUsers(input string) ([]bussinessLogic.User, error)
 	InsertLesson(lessonName string, lessonUnit int) error
 	InsertClass(lessonName, professorName, date string, capacity, classNumber int) error
 	GetAllClasses() ([]bussinessLogic.Classes, error)

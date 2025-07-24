@@ -12,7 +12,7 @@ type IDatabase interface {
 	GetAllProfessors() ([]Professor, error)
 	AddProfessorById(userId int) error
 	AddStudent(userId int) error
-	GetAllUsers() ([]User, error)
+	GetAllUsers(input string) ([]User, error)
 	InsertLesson(lessonName string, lessonUnit int) error
 	InsertClass(lessonName, professorName, date string, capacity, classNumber int) error
 	DeleteLesson(lessonName string) error
@@ -66,9 +66,9 @@ func (b AuthBussinessLogic) AddProfessor(userId int) error {
 	return b.IDatabase.AddProfessorById(userId)
 }
 
-func (b AuthBussinessLogic) ShowAllUsers() ([]User, error) {
-	return b.IDatabase.GetAllUsers()
-}
+// func (b AuthBussinessLogic) ShowAllUsers() ([]User, error) {
+// 	return b.IDatabase.GetAllUsers()
+// }
 
 func (b AuthBussinessLogic) InsertLesson(lessonName string, lessonUnit int) error {
 	return b.IDatabase.InsertLesson(lessonName, lessonUnit)
