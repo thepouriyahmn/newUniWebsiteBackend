@@ -10,11 +10,15 @@ type Protocols interface {
 	AddProfessor(w http.ResponseWriter, r *http.Request)
 	GetAllUsers(w http.ResponseWriter, r *http.Request)
 	InsertLesson(w http.ResponseWriter, r *http.Request)
+	InsertClass(w http.ResponseWriter, r *http.Request)
 	DeleteLesson(w http.ResponseWriter, r *http.Request)
 	GetAllLessons(w http.ResponseWriter, r *http.Request)
 	GetUsersByRole(w http.ResponseWriter, r *http.Request)
 	AddMark(w http.ResponseWriter, r *http.Request)
 	GetStudentsForProfessor(w http.ResponseWriter, r *http.Request)
 	AddStudentUnit(w http.ResponseWriter, r *http.Request)
+
 	DelStudentUnit(w http.ResponseWriter, r *http.Request)
+	ShowClasses(w http.ResponseWriter, r *http.Request)
+	DeleteClass(w http.ResponseWriter, r *http.Request)
 }

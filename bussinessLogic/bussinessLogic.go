@@ -3,26 +3,26 @@ package bussinessLogic
 import "net/http"
 
 type IDatabase interface {
-	// متدهای احراز هویت و ثبت‌نام
+	//auth methodes
 	CheackUserByUsernameAndEmail(ClientUsername, ClientEmail string) error
 	InsertUser(username, pass, email string, studentRole, professorRole bool) error
 	CheackUserByUserNameAndPassword(username, pass string) (int, string, error)
 	GetRole(id int) ([]string, string, error)
-
-	// متدهای پروژه قبلی (UniProject)
-
-	// متدهای مدیریتی و آموزشی
+	//management methodes
 	GetAllProfessors() ([]Professor, error)
 	AddProfessor(userId int) error
 	AddStudent(userId int) error
 	GetAllUsers() ([]User, error)
 	InsertLesson(lessonName string, lessonUnit int) error
+	InsertClass(lessonName, professorName, date string, capacity, classNumber int) error
 	DeleteLesson(lessonName string) error
 	GetAllLessons() ([]Lesson, error)
 	GetUsersByRole(roleId int) ([]User, error)
 	AddMark(userId, classId int, mark *int) error
 	GetStudentsForProfessor(professorId int) ([]Student, error)
 	RemoveStudentUnit(id int) error
+	GetAllClasses() ([]Classes, error)
+	DeleteClass(classId int) error
 }
 type IProtocol interface {
 	SignUp(w http.ResponseWriter, r *http.Request)
@@ -32,6 +32,7 @@ type IProtocol interface {
 	AddProfessor(w http.ResponseWriter, r *http.Request)
 	GetAllUsers(w http.ResponseWriter, r *http.Request)
 	InsertLesson(w http.ResponseWriter, r *http.Request)
+	InsertClass(w http.ResponseWriter, r *http.Request)
 	DeleteLesson(w http.ResponseWriter, r *http.Request)
 	GetAllLessons(w http.ResponseWriter, r *http.Request)
 	GetUsersByRole(w http.ResponseWriter, r *http.Request)
@@ -39,6 +40,8 @@ type IProtocol interface {
 	GetStudentsForProfessor(w http.ResponseWriter, r *http.Request)
 	AddStudentUnit(w http.ResponseWriter, r *http.Request)
 	DelStudentUnit(w http.ResponseWriter, r *http.Request)
+	ShowClasses(w http.ResponseWriter, r *http.Request)
+	DeleteClass(w http.ResponseWriter, r *http.Request)
 }
 type AuthBussinessLogic struct {
 	IProtocol IProtocol

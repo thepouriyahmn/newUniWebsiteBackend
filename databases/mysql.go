@@ -249,3 +249,84 @@ func (m Mysql) RemoveStudentUnit(id int) error {
 	}
 	return nil
 }
+func (m Mysql) InsertClass(lessonName, professorName, date string, capacity, classNumber int) error {
+	var professorId int
+	professorRow := m.db.QueryRow("SELECT user_roles.user_id FROM user_roles INNER JOIN users ON user_roles.user_id=users.ID where users.username = ?", professorName)
+	err := professorRow.Scan(&professorId)
+	if err != nil {
+		fmt.Printf("reading error: %v", err)
+		return err
+	}
+	var lessonId int
+	lessonRow := m.db.QueryRow("SELECT lesson_id FROM lessons where lesson_name = ?", lessonName)
+	err = lessonRow.Scan(&lessonId)
+	if err != nil {
+		fmt.Printf("reading error: %v", err)
+		return err
+	}
+
+	_, err = m.db.Exec("INSERT INTO classes(`lesson_id`,`professor_id`,`class_number`,`capacity`,`class_time`)VALUES(?,?,?,?,?)", lessonId, professorId, classNumber, capacity, date)
+	if err != nil {
+		fmt.Printf("reading error: %v", err)
+		return err
+	}
+	return nil
+}
+func (m Mysql) GetAllClasses() ([]bussinessLogic.Classes, error) {
+	var registered int
+	var classesSlice []bussinessLogic.Classes
+
+	rows, err := m.db.Query("SELECT `lesson_unit`,`lesson_name`,`username`,`class_id`,`class_number`,`capacity`,`class_time` FROM classes_view LIMIT 100")
+	if err != nil {
+		panic(err)
+
+	}
+	defer rows.Close()
+	var classes bussinessLogic.Classes
+	for rows.Next() {
+
+		err = rows.Scan(&classes.LessonUnit, &classes.LessonName, &classes.ProfessorName, &classes.Id, &classes.ClassNumber, &classes.Capacity, &classes.Date)
+		if err != nil {
+			fmt.Printf("reading error: %v", err)
+			return []bussinessLogic.Classes{}, err
+		}
+		err = m.db.QueryRow("SELECT COUNT(*) FROM users_classes WHERE class_id = ?", classes.Id).Scan(&registered)
+		if err != nil {
+			fmt.Printf("reading error: %v", err)
+			return []bussinessLogic.Classes{}, err
+		}
+		fmt.Println("class id: ", classes.Id)
+
+		LeftCapacity := classes.Capacity - registered
+		fmt.Println(registered, LeftCapacity, classes.Capacity)
+		if LeftCapacity == 0 {
+			LeftCapacity = -1
+		}
+
+		if LeftCapacity == 0 {
+			fmt.Println("full")
+
+		}
+		classes.Capacity = LeftCapacity
+
+		classesSlice = append(classesSlice, classes)
+		fmt.Println(classesSlice)
+
+	}
+	return classesSlice, nil
+
+}
+func (m Mysql) DeleteClass(classId int) error {
+	stmt, err := m.db.Prepare("DELETE FROM classes WHERE class_id = ?")
+	if err != nil {
+		fmt.Printf("reading error: %v", err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(classId)
+	if err != nil {
+		fmt.Printf("reading error: %v", err)
+		return err
+	}
+	return nil
+}

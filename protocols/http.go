@@ -340,3 +340,58 @@ func (h Http) DelStudentUnit(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 }
+func (h Http) InsertClass(w http.ResponseWriter, r *http.Request) {
+	type Lesson struct {
+		LessonName    string `json:"lessonName"`
+		ProfessorName string `json:"professorName"`
+
+		Capacity int `json:"capacity"`
+		ClassNum int `json:"classNumber"`
+
+		Date string `json:"date"`
+	}
+	var lesson Lesson
+
+	err := json.NewDecoder(r.Body).Decode(&lesson)
+	if err != nil {
+		fmt.Printf("reading error: %v:", err)
+		http.Error(w, "Invalid JSON format", http.StatusBadRequest)
+		return
+	}
+	fmt.Println("Received Lesson:", lesson)
+	err = h.Database.InsertClass(lesson.LessonName, lesson.ProfessorName, lesson.Date, lesson.Capacity, lesson.ClassNum)
+	if err != nil {
+		http.Error(w, "Failed to add class", http.StatusInternalServerError)
+	}
+
+}
+func (h Http) ShowClasses(w http.ResponseWriter, r *http.Request) {
+	classesSlice, err := h.Database.GetAllClasses()
+	if err != nil {
+		http.Error(w, "Failed to add class", http.StatusInternalServerError)
+		return
+	}
+	err = json.NewEncoder(w).Encode(classesSlice)
+	if err != nil {
+		http.Error(w, "Failed to show class", http.StatusInternalServerError)
+		return
+	}
+
+}
+func (h Http) DeleteClass(w http.ResponseWriter, r *http.Request) {
+	type Class struct {
+		Id int `json:"id"`
+	}
+	var class Class
+	err := json.NewDecoder(r.Body).Decode(&class)
+	if err != nil {
+		fmt.Printf("reading error: %v:", err)
+		http.Error(w, "Invalid JSON format", http.StatusBadRequest)
+		return
+	}
+	err = h.Database.DeleteClass(class.Id)
+	if err != nil {
+		http.Error(w, "Failed to delete class", http.StatusInternalServerError)
+		return
+	}
+}

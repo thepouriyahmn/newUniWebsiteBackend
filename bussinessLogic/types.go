@@ -17,6 +17,15 @@ type Lesson struct {
 	LessonUnit int    `json:"lessonUnit"`
 	Id         int    `json:"id"`
 }
+type Classes struct {
+	LessonName    string `json:"lessonName"`
+	LessonUnit    int    `json:"lessonUnit"`
+	Date          string `json:"date"`
+	Capacity      int    `json:"capacity"`
+	ClassNumber   int    `json:"classNumber"`
+	ProfessorName string `json:"professorName"`
+	Id            int    `json:"id"`
+}
 
 type Student struct {
 	Name   string `json:"name"`
