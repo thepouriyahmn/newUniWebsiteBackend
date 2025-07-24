@@ -11,16 +11,18 @@ type IDatabase interface {
 
 	// متدهای مدیریتی و آموزشی
 	GetAllProfessors() ([]bussinessLogic.Professor, error)
-	AddProfessor(userId int) error
+	AddProfessorById(userId int) error
 	AddStudent(userId int) error
 	GetAllUsers() ([]bussinessLogic.User, error)
 	InsertLesson(lessonName string, lessonUnit int) error
 	InsertClass(lessonName, professorName, date string, capacity, classNumber int) error
 	GetAllClasses() ([]bussinessLogic.Classes, error)
 	DeleteClass(classId int) error
+
 	DeleteLesson(lessonName string) error
 	GetAllLessons() ([]bussinessLogic.Lesson, error)
 	GetUsersByRole(roleId int) ([]bussinessLogic.User, error)
+	AddStudentById(userId int) error
 	AddMark(userId, classId int, mark *int) error
 	GetStudentsForProfessor(professorId int) ([]bussinessLogic.Student, error)
 	RemoveStudentUnit(id int) error

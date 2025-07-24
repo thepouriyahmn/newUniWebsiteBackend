@@ -145,9 +145,32 @@ func (m Mysql) GetAllProfessors() ([]bussinessLogic.Professor, error) {
 	return professorSlice, nil
 }
 
-func (m Mysql) AddProfessor(userId int) error {
-	_, err := m.db.Exec("INSERT INTO user_roles(user_id,role_id) VALUES (?, ?)", userId, 3)
-	return err
+func (m Mysql) AddProfessorById(userId int) error {
+	var roleId int
+	rows, err := m.db.Query("SELECT role_id FROM user_roles WHERE user_id = ?", userId)
+	if err != nil {
+		fmt.Printf("reading error: %v", err)
+		return err
+	}
+
+	for rows.Next() {
+		err = rows.Scan(&roleId)
+		if err != nil {
+			fmt.Printf("reading error: %v", err)
+			return err
+		}
+		if roleId == 3 {
+			return errors.New("")
+		}
+	}
+
+	_, err = m.db.Exec("INSERT INTO user_roles(user_id,role_id) VALUES (?, ?)", userId, 3)
+	if err != nil {
+
+		fmt.Printf("reading error: %v", err)
+		return err
+	}
+	return nil
 }
 
 func (m Mysql) AddStudent(userId int) error {
@@ -326,6 +349,30 @@ func (m Mysql) DeleteClass(classId int) error {
 	_, err = stmt.Exec(classId)
 	if err != nil {
 		fmt.Printf("reading error: %v", err)
+		return err
+	}
+	return nil
+}
+func (m Mysql) AddStudentById(userId int) error {
+	var roleId int
+	rows, err := m.db.Query("SELECT role_id FROM user_roles WHERE user_id = ?", userId)
+	if err != nil {
+		return err
+	}
+
+	for rows.Next() {
+		err = rows.Scan(&roleId)
+		if err != nil {
+			panic(err)
+		}
+		if roleId == 2 {
+			return errors.New("")
+		}
+	}
+
+	_, err = m.db.Exec("INSERT INTO user_roles(user_id,role_id) VALUES (?, ?)", userId, 2)
+	if err != nil {
+
 		return err
 	}
 	return nil

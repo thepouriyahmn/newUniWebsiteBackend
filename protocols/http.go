@@ -210,7 +210,7 @@ func (h Http) AddProfessor(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
-	err := h.Database.AddProfessor(req.Id)
+	err := h.Database.AddProfessorById(req.Id)
 	if err != nil {
 		http.Error(w, "Failed to add professor", http.StatusInternalServerError)
 		return
@@ -392,6 +392,25 @@ func (h Http) DeleteClass(w http.ResponseWriter, r *http.Request) {
 	err = h.Database.DeleteClass(class.Id)
 	if err != nil {
 		http.Error(w, "Failed to delete class", http.StatusInternalServerError)
+		return
+	}
+}
+func (h Http) AddStudent(w http.ResponseWriter, r *http.Request) {
+	type studentRequest struct {
+		Id int `json:"id"`
+	}
+	var student studentRequest
+
+	err := json.NewDecoder(r.Body).Decode(&student)
+	if err != nil {
+		fmt.Printf("reading error: %v:", err)
+		http.Error(w, "Invalid JSON format", http.StatusBadRequest)
+		return
+	}
+	err = h.Database.AddStudentById(student.Id)
+	if err != nil {
+
+		http.Error(w, "Failed to add student", http.StatusInternalServerError)
 		return
 	}
 }

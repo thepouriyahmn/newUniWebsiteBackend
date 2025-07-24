@@ -24,7 +24,7 @@ func (rest Restful) Run() {
 	http.HandleFunc("/login", rest.Login1)
 	http.HandleFunc("/verify", rest.Verify)
 	http.HandleFunc("/showProfessors", auth.AdminJwtMiddleware(rest.showProfessors))
-	http.HandleFunc("/addProfessor", auth.AdminJwtMiddleware(rest.addProfessor))
+
 	http.HandleFunc("/showAllUsers", auth.AdminJwtMiddleware(rest.showAllUsers))
 	http.HandleFunc("/insertLesson", auth.AdminJwtMiddleware(rest.insertLesson))
 	http.HandleFunc("/showClasses", auth.AdminJwtMiddleware(rest.showClasses))
@@ -33,6 +33,8 @@ func (rest Restful) Run() {
 	http.HandleFunc("/deleteLesson", auth.AdminJwtMiddleware(rest.deleteLesson))
 	http.HandleFunc("/showAllLessons", auth.AdminJwtMiddleware(rest.showAllLessons))
 	http.HandleFunc("/showUsersByRole", auth.AdminJwtMiddleware(rest.showUsersByRole))
+	http.HandleFunc("/addStudent", auth.AdminJwtMiddleware(rest.addStudent))
+	http.HandleFunc("/addProfessor", auth.AdminJwtMiddleware(rest.addProfessor))
 	http.HandleFunc("/addMark", auth.ProfessorjwtMiddleware3(rest.addMark))
 	http.HandleFunc("/showStudentsForProfessor", auth.ProfessorjwtMiddleware3(rest.showStudentsForProfessor))
 	http.HandleFunc("/add", auth.StudentJwtMiddleware(rest.addStudentUnit))
@@ -137,4 +139,7 @@ func (rest Restful) delStudentUnit(w http.ResponseWriter, r *http.Request) {
 }
 func (rest Restful) deleteClass(w http.ResponseWriter, r *http.Request) {
 	rest.AuthBussinessLogic.IProtocol.DeleteClass(w, r)
+}
+func (rest Restful) addStudent(w http.ResponseWriter, r *http.Request) {
+	rest.AuthBussinessLogic.IProtocol.AddStudent(w, r)
 }

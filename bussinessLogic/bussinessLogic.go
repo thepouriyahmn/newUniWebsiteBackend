@@ -10,7 +10,7 @@ type IDatabase interface {
 	GetRole(id int) ([]string, string, error)
 	//management methodes
 	GetAllProfessors() ([]Professor, error)
-	AddProfessor(userId int) error
+	AddProfessorById(userId int) error
 	AddStudent(userId int) error
 	GetAllUsers() ([]User, error)
 	InsertLesson(lessonName string, lessonUnit int) error
@@ -23,6 +23,7 @@ type IDatabase interface {
 	RemoveStudentUnit(id int) error
 	GetAllClasses() ([]Classes, error)
 	DeleteClass(classId int) error
+	AddStudentById(userId int) error
 }
 type IProtocol interface {
 	SignUp(w http.ResponseWriter, r *http.Request)
@@ -42,6 +43,7 @@ type IProtocol interface {
 	DelStudentUnit(w http.ResponseWriter, r *http.Request)
 	ShowClasses(w http.ResponseWriter, r *http.Request)
 	DeleteClass(w http.ResponseWriter, r *http.Request)
+	AddStudent(w http.ResponseWriter, r *http.Request)
 }
 type AuthBussinessLogic struct {
 	IProtocol IProtocol
@@ -61,7 +63,7 @@ func (b AuthBussinessLogic) ShowProfessors() ([]Professor, error) {
 }
 
 func (b AuthBussinessLogic) AddProfessor(userId int) error {
-	return b.IDatabase.AddProfessor(userId)
+	return b.IDatabase.AddProfessorById(userId)
 }
 
 func (b AuthBussinessLogic) ShowAllUsers() ([]User, error) {
