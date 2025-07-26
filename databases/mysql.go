@@ -415,7 +415,7 @@ func (m Mysql) GetClassesByUserId(userID int) ([]bussinessLogic.StudentClasses, 
 		if nullableMark.Valid {
 			classes2.Mark = int(nullableMark.Int64)
 		} else {
-			classes2.Mark = -1 // یا مقدار پیش‌فرضی که می‌خوای بذاری
+			classes2.Mark = -1
 		}
 		err = m.db.QueryRow("SELECT COUNT(*) FROM users_classes WHERE class_id = ?", classes2.Id).Scan(&registered)
 		if err != nil {

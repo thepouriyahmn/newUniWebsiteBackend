@@ -98,11 +98,6 @@ func (h Http) Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		//err = json.NewEncoder(w).Encode(map[string]string{"token": token})
-		//if err != nil {
-		//	panic(err)
-		//}
-
 		fmt.Println("ok")
 
 		fmt.Println("enter send code")
@@ -124,7 +119,7 @@ func (h Http) Login(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(verificationCodes)
 
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK) // اول این
+		w.WriteHeader(http.StatusOK)
 		fmt.Println("id: ", id)
 		err = json.NewEncoder(w).Encode(map[string]int{"id": id})
 		if err != nil {
