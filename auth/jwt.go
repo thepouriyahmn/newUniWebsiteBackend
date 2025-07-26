@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/go-redis/redis"
 )
 
 type Claims struct {
@@ -123,6 +124,15 @@ func AdminJwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return
 		}
+		rdb := redis.NewClient(&redis.Options{
+			Addr: "localhost:6379",
+		})
+
+		blocked, err := rdb.Get(tokenStr).Result()
+		if err != redis.Nil && blocked == "blocked" {
+			http.Error(w, "Token is blocked", http.StatusUnauthorized)
+			return
+		}
 
 		// اگه همه چیز اوکی بود، بره سراغ هندلر اصلی
 		next(w, r)
@@ -167,7 +177,15 @@ func StudentJwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return
 		}
+		rdb := redis.NewClient(&redis.Options{
+			Addr: "localhost:6379",
+		})
 
+		blocked, err := rdb.Get(tokenStr).Result()
+		if err != redis.Nil && blocked == "blocked" {
+			http.Error(w, "Token is blocked", http.StatusUnauthorized)
+			return
+		}
 		// اگه همه چیز اوکی بود، بره سراغ هندلر اصلی
 		ctx := context.WithValue(r.Context(), UserIDKey, claims.Id)
 		next.ServeHTTP(w, r.WithContext(ctx))
@@ -213,7 +231,15 @@ func ProfessorjwtMiddleware3(next http.HandlerFunc) http.HandlerFunc {
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return
 		}
+		rdb := redis.NewClient(&redis.Options{
+			Addr: "localhost:6379",
+		})
 
+		blocked, err := rdb.Get(tokenStr).Result()
+		if err != redis.Nil && blocked == "blocked" {
+			http.Error(w, "Token is blocked", http.StatusUnauthorized)
+			return
+		}
 		ctx := context.WithValue(r.Context(), UserIDKey, claims.Id)
 		next.ServeHTTP(w, r.WithContext(ctx))
 
