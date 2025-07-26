@@ -22,11 +22,11 @@ func NewRestFul(authLogic bussinessLogic.AuthBussinessLogic) Restful {
 }
 
 func (rest Restful) Run() {
-	http.HandleFunc("/signUp", rest.SignUp)
+	http.HandleFunc("/signUp", auth.CheackOriginMiddleWare(rest.SignUp))
 
-	http.HandleFunc("/login", rest.Login1)
-	http.HandleFunc("/logout", rest.logout)
-	http.HandleFunc("/verify", rest.Verify)
+	http.HandleFunc("/login", auth.CheackOriginMiddleWare(rest.Login1))
+	http.HandleFunc("/logout", auth.CheackOriginMiddleWare(rest.logout))
+	http.HandleFunc("/verify", auth.CheackOriginMiddleWare(rest.Verify))
 	http.HandleFunc("/showProfessors", auth.AdminJwtMiddleware(rest.showProfessors))
 
 	http.HandleFunc("/showAllUsers", auth.AdminJwtMiddleware(rest.showAllUsers))
@@ -51,45 +51,14 @@ func (rest Restful) Run() {
 	}
 }
 func (rest Restful) SignUp(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-	// پاسخ به preflight
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusOK)
-		return
-
-	}
 
 	rest.AuthBussinessLogic.IProtocol.SignUp(w, r)
 }
 func (rest Restful) Login1(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-	// پاسخ به preflight
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusOK)
-		return
-
-	}
-	fmt.Println("r.body is: ", r.Body, r.Method, r.Host)
 
 	rest.AuthBussinessLogic.IProtocol.Login(w, r)
 }
 func (rest Restful) Verify(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-	// پاسخ به preflight
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusOK)
-		return
-
-	}
 
 	rest.AuthBussinessLogic.IProtocol.Verify(w, r)
 }
@@ -152,16 +121,7 @@ func (rest Restful) pickedUnits(w http.ResponseWriter, r *http.Request) {
 	rest.AuthBussinessLogic.IProtocol.ShowPickedUnitsForStudent(w, r)
 }
 func (rest Restful) logout(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
-	// پاسخ به preflight
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusOK)
-		return
-
-	}
 	tokenStr := r.Header.Get("Authorization")
 	if tokenStr == "" {
 		http.Error(w, "Missing token", http.StatusUnauthorized)
