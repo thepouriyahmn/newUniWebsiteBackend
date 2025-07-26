@@ -60,14 +60,12 @@ func NormalJwtmiddleWare(next http.HandlerFunc) http.HandlerFunc {
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
-		// پاسخ به preflight
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
 			return
 
 		}
 
-		// توکن چک کردن
 		authHeader := r.Header.Get("Authorization")
 		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
 		claims := &Claims{}
@@ -91,14 +89,12 @@ func AdminJwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
-		// پاسخ به preflight
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
 			return
 
 		}
 
-		// توکن چک کردن
 		authHeader := r.Header.Get("Authorization")
 		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
 		claims := &Claims{}
@@ -134,7 +130,6 @@ func AdminJwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		// اگه همه چیز اوکی بود، بره سراغ هندلر اصلی
 		next(w, r)
 	}
 }
@@ -145,14 +140,12 @@ func StudentJwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
-		// پاسخ به preflight
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
 			return
 
 		}
 
-		// توکن چک کردن
 		authHeader := r.Header.Get("Authorization")
 		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
 		claims := &Claims{}
@@ -186,7 +179,7 @@ func StudentJwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			http.Error(w, "Token is blocked", http.StatusUnauthorized)
 			return
 		}
-		// اگه همه چیز اوکی بود، بره سراغ هندلر اصلی
+
 		ctx := context.WithValue(r.Context(), UserIDKey, claims.Id)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
@@ -198,14 +191,12 @@ func ProfessorjwtMiddleware3(next http.HandlerFunc) http.HandlerFunc {
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
-		// پاسخ به preflight
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
 			return
 
 		}
 
-		// توکن چک کردن
 		authHeader := r.Header.Get("Authorization")
 		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
 		claims := &Claims{}
@@ -252,7 +243,6 @@ func CheackOriginMiddleWare(next http.HandlerFunc) http.HandlerFunc {
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
-		// پاسخ به preflight
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
 			return
