@@ -1,0 +1,1 @@
+DELETE FROM terms WHERE term IN ('4041', '4042');

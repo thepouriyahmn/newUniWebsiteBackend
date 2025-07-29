@@ -1,0 +1,1 @@
+INSERT INTO terms (term) VALUES ('4041'), ('4042');
