@@ -314,11 +314,12 @@ func (m Mysql) InsertClass(lessonName, professorName, date, term string, capacit
 	}
 	return nil
 }
-func (m Mysql) GetAllClasses() ([]bussinessLogic.Classes, error) {
+func (m Mysql) GetAllClassesByTerm(term string) ([]bussinessLogic.Classes, error) {
 	var registered int
 	var classesSlice []bussinessLogic.Classes
 
-	rows, err := m.db.Query("SELECT `lesson_unit`,`lesson_name`,`username`,`class_id`,`class_number`,`capacity`,`class_time` FROM classes_view LIMIT 100")
+	rows, err := m.db.Query("SELECT `lesson_unit`,`lesson_name`,`username`,`class_id`,`class_number`,`capacity`,`class_time`,`term` FROM classes_view WHERE term = ?", term)
+
 	if err != nil {
 		panic(err)
 
@@ -327,7 +328,7 @@ func (m Mysql) GetAllClasses() ([]bussinessLogic.Classes, error) {
 	var classes bussinessLogic.Classes
 	for rows.Next() {
 
-		err = rows.Scan(&classes.LessonUnit, &classes.LessonName, &classes.ProfessorName, &classes.Id, &classes.ClassNumber, &classes.Capacity, &classes.Date)
+		err = rows.Scan(&classes.LessonUnit, &classes.LessonName, &classes.ProfessorName, &classes.Id, &classes.ClassNumber, &classes.Capacity, &classes.Date, &classes.Term)
 		if err != nil {
 			fmt.Printf("reading error: %v", err)
 			return []bussinessLogic.Classes{}, err

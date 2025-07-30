@@ -25,6 +25,7 @@ type Classes struct {
 	ClassNumber   int    `json:"classNumber"`
 	ProfessorName string `json:"professorName"`
 	Id            int    `json:"id"`
+	Term          string `json:"term"`
 }
 type StudentClasses struct {
 	LessonName    string `json:"lessonName"`

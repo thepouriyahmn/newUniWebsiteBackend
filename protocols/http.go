@@ -386,7 +386,9 @@ func (h Http) InsertClass(w http.ResponseWriter, r *http.Request) {
 
 }
 func (h Http) ShowClasses(w http.ResponseWriter, r *http.Request) {
-	classesSlice, err := h.Database.GetAllClasses()
+	input := r.URL.Query().Get("input")
+	fmt.Println("inputtttttt: ", input)
+	classesSlice, err := h.Database.GetAllClassesByTerm(input)
 	if err != nil {
 		http.Error(w, "Failed to add class", http.StatusInternalServerError)
 		return
