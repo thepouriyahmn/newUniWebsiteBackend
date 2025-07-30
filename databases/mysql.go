@@ -285,7 +285,7 @@ func (m Mysql) RemoveStudentUnit(classid int, userid int) error {
 	}
 	return nil
 }
-func (m Mysql) InsertClass(lessonName, professorName, date string, capacity, classNumber int) error {
+func (m Mysql) InsertClass(lessonName, professorName, date, term string, capacity, classNumber int) error {
 	var professorId int
 	professorRow := m.db.QueryRow("SELECT user_roles.user_id FROM user_roles INNER JOIN users ON user_roles.user_id=users.ID where users.username = ?", professorName)
 	err := professorRow.Scan(&professorId)
@@ -300,8 +300,14 @@ func (m Mysql) InsertClass(lessonName, professorName, date string, capacity, cla
 		fmt.Printf("reading error: %v", err)
 		return err
 	}
-
-	_, err = m.db.Exec("INSERT INTO classes(`lesson_id`,`professor_id`,`class_number`,`capacity`,`class_time`)VALUES(?,?,?,?,?)", lessonId, professorId, classNumber, capacity, date)
+	var termId int
+	termRow := m.db.QueryRow("SELECT id FROM terms where term = ?", term)
+	err = termRow.Scan(&termId)
+	if err != nil {
+		fmt.Printf("reading error: %v", err)
+		return err
+	}
+	_, err = m.db.Exec("INSERT INTO classes(`lesson_id`,`professor_id`,`class_number`,`capacity`,`class_time`,`term_id`)VALUES(?,?,?,?,?,?)", lessonId, professorId, classNumber, capacity, date, termId)
 	if err != nil {
 		fmt.Printf("reading error: %v", err)
 		return err

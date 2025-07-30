@@ -368,6 +368,7 @@ func (h Http) InsertClass(w http.ResponseWriter, r *http.Request) {
 		ClassNum int `json:"classNumber"`
 
 		Date string `json:"date"`
+		Term string `json:"term"`
 	}
 	var lesson Lesson
 
@@ -378,7 +379,7 @@ func (h Http) InsertClass(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println("Received Lesson:", lesson)
-	err = h.Database.InsertClass(lesson.LessonName, lesson.ProfessorName, lesson.Date, lesson.Capacity, lesson.ClassNum)
+	err = h.Database.InsertClass(lesson.LessonName, lesson.ProfessorName, lesson.Date, lesson.Term, lesson.Capacity, lesson.ClassNum)
 	if err != nil {
 		http.Error(w, "Failed to add class", http.StatusInternalServerError)
 	}
