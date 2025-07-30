@@ -2,6 +2,7 @@ package main
 
 import (
 	"UniWebsite/bussinessLogic"
+	"UniWebsite/cache"
 	"UniWebsite/databases"
 	"UniWebsite/protocols"
 	"UniWebsite/restful"
@@ -13,12 +14,18 @@ import (
 )
 
 func main() {
+	var Icache cache.ICache
 	var Idatabase databases.IDatabase
 	var IProtocol protocols.Protocols
 	var Iverify verification.ISendVerificationCode
+	useCache := "redis"
 	useDatabase := "Mysql"
 	useProtocol := "http"
 	VerifyType := "email"
+	redis := cache.NewRedis("localhost:6379")
+	if useCache == "redis" {
+		Icache = redis
+	}
 	email := verification.NewEmail()
 	if VerifyType == "email" {
 		Iverify = email
@@ -36,16 +43,12 @@ func main() {
 		fmt.Println("Database is nil. Exiting.")
 		os.Exit(1)
 	}
-	http := protocols.NewHttp(Idatabase, Iverify)
+	http := protocols.NewHttp(Idatabase, Iverify, Icache)
 	if useProtocol == "http" {
 		IProtocol = http
 	}
-	if IProtocol == nil {
-		fmt.Println("Protocol is nil. Exiting.")
-		os.Exit(1)
-	}
 
-	logic := bussinessLogic.NewBussinessLogic(IProtocol, Idatabase)
+	logic := bussinessLogic.NewBussinessLogic(IProtocol)
 	r := restful.NewRestFul(logic)
 	r.Run()
 

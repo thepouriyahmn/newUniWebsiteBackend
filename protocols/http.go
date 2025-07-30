@@ -2,6 +2,7 @@ package protocols
 
 import (
 	"UniWebsite/auth"
+	"UniWebsite/cache"
 	"UniWebsite/databases"
 	"UniWebsite/verification"
 	"bytes"
@@ -16,11 +17,13 @@ import (
 type Http struct {
 	Database         databases.IDatabase
 	VerificationCode verification.ISendVerificationCode
+	Cache            cache.ICache
 }
 
-func NewHttp(database databases.IDatabase, verifyType verification.ISendVerificationCode) Http {
+func NewHttp(database databases.IDatabase, verifyType verification.ISendVerificationCode, cache cache.ICache) Http {
 	return Http{Database: database,
 		VerificationCode: verifyType,
+		Cache:            cache,
 	}
 }
 func (h Http) SignUp(w http.ResponseWriter, r *http.Request) {
@@ -443,4 +446,36 @@ func (h Http) ShowPickedUnitsForStudent(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+}
+func (h Http) GetTerms(w http.ResponseWriter, r *http.Request) {
+
+	terms, err := h.Cache.GetCacheValue("terms")
+	if err != nil {
+		fmt.Println("err in cache")
+		terms, err := h.Database.GetAllTerms()
+		if err != nil {
+			http.Error(w, "Failed to get terms", http.StatusInternalServerError)
+			return
+		}
+		err = json.NewEncoder(w).Encode(terms)
+
+		h.Cache.CacheTerms(terms)
+
+		if err != nil {
+			http.Error(w, "Failed to show class", http.StatusInternalServerError)
+
+		}
+		return
+	}
+	var termSlice []string
+	err = json.Unmarshal([]byte(terms), &termSlice)
+	if err != nil {
+		fmt.Println("Error unmarshaling:", err)
+		return
+	}
+	err = json.NewEncoder(w).Encode(termSlice)
+	if err != nil {
+		http.Error(w, "Failed", http.StatusInternalServerError)
+		return
+	}
 }

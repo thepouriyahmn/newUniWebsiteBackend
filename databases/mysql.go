@@ -480,3 +480,23 @@ func (m Mysql) InsertUnitForStudent(userid, classid int) error {
 	}
 	return nil
 }
+func (m Mysql) GetAllTerms() ([]string, error) {
+	var term string
+	var termSlice []string
+	rows, err := m.db.Query("SELECT `term` FROM terms")
+	if err != nil {
+		fmt.Printf("reading error: %v", err)
+		return []string{}, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&term)
+		if err != nil {
+			fmt.Printf("reading error: %v", err)
+			return []string{}, err
+		}
+		termSlice = append(termSlice, term)
+	}
+	return termSlice, nil
+
+}

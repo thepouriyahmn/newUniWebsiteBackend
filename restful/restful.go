@@ -28,6 +28,7 @@ func (rest Restful) Run() {
 	http.HandleFunc("/logout", auth.CheackOriginMiddleWare(rest.logout))
 	http.HandleFunc("/verify", auth.CheackOriginMiddleWare(rest.Verify))
 	http.HandleFunc("/showProfessors", auth.AdminJwtMiddleware(rest.showProfessors))
+	http.HandleFunc("/getTerms", auth.AdminJwtMiddleware(rest.getTerms))
 
 	http.HandleFunc("/showAllUsers", auth.AdminJwtMiddleware(rest.showAllUsers))
 	http.HandleFunc("/insertLesson", auth.AdminJwtMiddleware(rest.insertLesson))
@@ -133,4 +134,8 @@ func (rest Restful) logout(w http.ResponseWriter, r *http.Request) {
 	})
 
 	rdb.Set(tokenStr, "blocked", 5*time.Minute)
+}
+func (rest Restful) getTerms(w http.ResponseWriter, r *http.Request) {
+
+	rest.AuthBussinessLogic.IProtocol.GetTerms(w, r)
 }

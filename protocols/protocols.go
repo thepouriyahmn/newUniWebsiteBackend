@@ -7,6 +7,7 @@ type Protocols interface {
 	Login(w http.ResponseWriter, r *http.Request)
 	Verify(w http.ResponseWriter, r *http.Request)
 	GetAllProfessors(w http.ResponseWriter, r *http.Request)
+	GetTerms(w http.ResponseWriter, r *http.Request)
 	AddProfessor(w http.ResponseWriter, r *http.Request)
 	GetAllUsers(w http.ResponseWriter, r *http.Request)
 	InsertLesson(w http.ResponseWriter, r *http.Request)

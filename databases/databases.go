@@ -18,7 +18,7 @@ type IDatabase interface {
 	InsertClass(lessonName, professorName, date string, capacity, classNumber int) error
 	GetAllClasses() ([]bussinessLogic.Classes, error)
 	DeleteClass(classId int) error
-
+	GetAllTerms() ([]string, error)
 	DeleteLesson(lessonName string) error
 	GetAllLessons() ([]bussinessLogic.Lesson, error)
 	GetUsersByRole(roleId int) ([]bussinessLogic.User, error)
