@@ -12,12 +12,12 @@ import (
 )
 
 type Restful struct {
-	AuthBussinessLogic bussinessLogic.AuthBussinessLogic
+	Bussinesslogic bussinessLogic.Bussinesslogic
 }
 
-func NewRestFul(authLogic bussinessLogic.AuthBussinessLogic) Restful {
+func NewRestFul(authLogic bussinessLogic.Bussinesslogic) Restful {
 	return Restful{
-		AuthBussinessLogic: authLogic,
+		Bussinesslogic: authLogic,
 	}
 }
 
@@ -53,73 +53,73 @@ func (rest Restful) Run() {
 }
 func (rest Restful) SignUp(w http.ResponseWriter, r *http.Request) {
 
-	rest.AuthBussinessLogic.IProtocol.SignUp(w, r)
+	rest.Bussinesslogic.IProtocol.SignUp(w, r)
 }
 func (rest Restful) Login1(w http.ResponseWriter, r *http.Request) {
 
-	rest.AuthBussinessLogic.IProtocol.Login(w, r)
+	rest.Bussinesslogic.IProtocol.Login(w, r)
 }
 func (rest Restful) Verify(w http.ResponseWriter, r *http.Request) {
 
-	rest.AuthBussinessLogic.IProtocol.Verify(w, r)
+	rest.Bussinesslogic.IProtocol.Verify(w, r)
 }
 func (rest Restful) showProfessors(w http.ResponseWriter, r *http.Request) {
-	rest.AuthBussinessLogic.IProtocol.GetAllProfessors(w, r)
+	rest.Bussinesslogic.IProtocol.GetAllProfessors(w, r)
 }
 
 func (rest Restful) addProfessor(w http.ResponseWriter, r *http.Request) {
-	rest.AuthBussinessLogic.IProtocol.AddProfessor(w, r)
+	rest.Bussinesslogic.IProtocol.AddProfessor(w, r)
 }
 
 func (rest Restful) showAllUsers(w http.ResponseWriter, r *http.Request) {
-	rest.AuthBussinessLogic.IProtocol.GetAllUsers(w, r)
+	rest.Bussinesslogic.IProtocol.GetAllUsers(w, r)
 }
 
 func (rest Restful) insertLesson(w http.ResponseWriter, r *http.Request) {
-	rest.AuthBussinessLogic.IProtocol.InsertLesson(w, r)
+	rest.Bussinesslogic.IProtocol.InsertLesson(w, r)
 }
 func (rest Restful) insertClass(w http.ResponseWriter, r *http.Request) {
-	rest.AuthBussinessLogic.IProtocol.InsertClass(w, r)
+	rest.Bussinesslogic.IProtocol.InsertClass(w, r)
 }
 func (rest Restful) showClasses(w http.ResponseWriter, r *http.Request) {
-	rest.AuthBussinessLogic.IProtocol.ShowClasses(w, r)
+	rest.Bussinesslogic.IProtocol.ShowClasses(w, r)
 }
 
 func (rest Restful) deleteLesson(w http.ResponseWriter, r *http.Request) {
-	rest.AuthBussinessLogic.IProtocol.DeleteLesson(w, r)
+	rest.Bussinesslogic.IProtocol.DeleteLesson(w, r)
 }
 
 func (rest Restful) showAllLessons(w http.ResponseWriter, r *http.Request) {
-	rest.AuthBussinessLogic.IProtocol.GetAllLessons(w, r)
+	rest.Bussinesslogic.IProtocol.GetAllLessons(w, r)
 }
 
 func (rest Restful) showUsersByRole(w http.ResponseWriter, r *http.Request) {
-	rest.AuthBussinessLogic.IProtocol.GetUsersByRole(w, r)
+	rest.Bussinesslogic.IProtocol.GetUsersByRole(w, r)
 }
 
 func (rest Restful) addMark(w http.ResponseWriter, r *http.Request) {
-	rest.AuthBussinessLogic.IProtocol.AddMark(w, r)
+	rest.Bussinesslogic.IProtocol.AddMark(w, r)
 }
 
 func (rest Restful) showStudentsForProfessor(w http.ResponseWriter, r *http.Request) {
-	rest.AuthBussinessLogic.IProtocol.GetStudentsForProfessor(w, r)
+	rest.Bussinesslogic.IProtocol.GetStudentsForProfessor(w, r)
 }
 
 func (rest Restful) addStudentUnit(w http.ResponseWriter, r *http.Request) {
-	rest.AuthBussinessLogic.IProtocol.AddStudentUnit(w, r)
+	rest.Bussinesslogic.IProtocol.AddStudentUnit(w, r)
 }
 
 func (rest Restful) delStudentUnit(w http.ResponseWriter, r *http.Request) {
-	rest.AuthBussinessLogic.IProtocol.DelStudentUnit(w, r)
+	rest.Bussinesslogic.IProtocol.DelStudentUnit(w, r)
 }
 func (rest Restful) deleteClass(w http.ResponseWriter, r *http.Request) {
-	rest.AuthBussinessLogic.IProtocol.DeleteClass(w, r)
+	rest.Bussinesslogic.IProtocol.DeleteClass(w, r)
 }
 func (rest Restful) addStudent(w http.ResponseWriter, r *http.Request) {
-	rest.AuthBussinessLogic.IProtocol.AddStudent(w, r)
+	rest.Bussinesslogic.IProtocol.AddStudent(w, r)
 }
 func (rest Restful) pickedUnits(w http.ResponseWriter, r *http.Request) {
-	rest.AuthBussinessLogic.IProtocol.ShowPickedUnitsForStudent(w, r)
+	rest.Bussinesslogic.IProtocol.ShowPickedUnitsForStudent(w, r)
 }
 func (rest Restful) logout(w http.ResponseWriter, r *http.Request) {
 
@@ -137,5 +137,5 @@ func (rest Restful) logout(w http.ResponseWriter, r *http.Request) {
 }
 func (rest Restful) getTerms(w http.ResponseWriter, r *http.Request) {
 
-	rest.AuthBussinessLogic.IProtocol.GetTerms(w, r)
+	rest.Bussinesslogic.IProtocol.GetTerms(w, r)
 }

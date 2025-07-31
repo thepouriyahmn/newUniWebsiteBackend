@@ -2,28 +2,17 @@ package bussinessLogic
 
 import "net/http"
 
-type IDatabase interface {
-	CheackUserByUsernameAndEmail(ClientUsername, ClientEmail string) error
-	InsertUser(username, pass, email string, studentRole, professorRole bool) error
-	CheackUserByUserNameAndPassword(username, pass string) (int, string, error)
-	GetRole(id int) ([]string, string, error)
-
-	GetAllProfessors() ([]Professor, error)
-	AddProfessorById(userId int) error
-	AddStudent(userId int) error
-	GetAllUsers(input string) ([]User, error)
-	InsertLesson(lessonName string, lessonUnit int) error
-	InsertClass(lessonName, professorName, date string, capacity, classNumber int) error
-	DeleteLesson(lessonName string) error
-	GetAllLessons() ([]Lesson, error)
-	GetUsersByRole(roleId int) ([]User, error)
-	AddMark(userId, classId int, mark int) error
-	GetStudentsForProfessor(professorId int) ([]Student2, error)
-	RemoveStudentUnit(id int, userid int) error
-	GetAllClasses() ([]Classes, error)
-	DeleteClass(classId int) error
-	AddStudentById(userId int) error
+type Bussinesslogic struct {
+	IProtocol IProtocol
 }
+
+func NewBussinessLogic(protocol IProtocol) Bussinesslogic {
+	return Bussinesslogic{
+		IProtocol: protocol,
+	}
+
+}
+
 type IProtocol interface {
 	ShowPickedUnitsForStudent(w http.ResponseWriter, r *http.Request)
 	SignUp(w http.ResponseWriter, r *http.Request)
@@ -46,53 +35,3 @@ type IProtocol interface {
 	DeleteClass(w http.ResponseWriter, r *http.Request)
 	AddStudent(w http.ResponseWriter, r *http.Request)
 }
-type AuthBussinessLogic struct {
-	IProtocol IProtocol
-}
-
-func NewBussinessLogic(protocol IProtocol) AuthBussinessLogic {
-	return AuthBussinessLogic{
-		IProtocol: protocol,
-	}
-
-}
-
-// func (b AuthBussinessLogic) ShowProfessors() ([]Professor, error) {
-// 	return b.IDatabase.GetAllProfessors()
-// }
-
-// func (b AuthBussinessLogic) AddProfessor(userId int) error {
-// 	return b.IDatabase.AddProfessorById(userId)
-// }
-
-// // func (b AuthBussinessLogic) ShowAllUsers() ([]User, error) {
-// // 	return b.IDatabase.GetAllUsers()
-// // }
-
-// func (b AuthBussinessLogic) InsertLesson(lessonName string, lessonUnit int) error {
-// 	return b.IDatabase.InsertLesson(lessonName, lessonUnit)
-// }
-
-// func (b AuthBussinessLogic) DeleteLesson(lessonName string) error {
-// 	return b.IDatabase.DeleteLesson(lessonName)
-// }
-
-// func (b AuthBussinessLogic) ShowAllLessons() ([]Lesson, error) {
-// 	return b.IDatabase.GetAllLessons()
-// }
-
-// func (b AuthBussinessLogic) ShowUsersByRole(roleId int) ([]User, error) {
-// 	return b.IDatabase.GetUsersByRole(roleId)
-// }
-
-// func (b AuthBussinessLogic) AddMark(userId, classId int, mark int) error {
-// 	return b.IDatabase.AddMark(userId, classId, mark)
-// }
-
-// func (b AuthBussinessLogic) ShowStudentsForProfessor(professorId int) ([]Student2, error) {
-// 	return b.IDatabase.GetStudentsForProfessor(professorId)
-// }
-
-// func (b AuthBussinessLogic) RemoveStudentUnit(id int, userid int) error {
-// 	return b.IDatabase.RemoveStudentUnit(id, userid)
-// }
