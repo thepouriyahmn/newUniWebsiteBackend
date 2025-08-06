@@ -32,10 +32,8 @@ func (m Mysql) CheackUserByUsernameAndEmail(ClientUsername, ClientEmail string) 
 		return err
 	}
 	for rows.Next() {
-		err = rows.Scan(&user, &email)
-		if err != nil {
-			fmt.Println(err)
-		}
+		_ = rows.Scan(&user, &email)
+
 		userslice = append(userslice, user)
 		emailSlice = append(emailSlice, email)
 	}
