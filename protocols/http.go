@@ -42,7 +42,7 @@ func (h Http) SignUp(w http.ResponseWriter, r *http.Request) {
 			fmt.Printf("reding error: %v", err)
 			//panic(err)
 		}
-		if !auth.IsValidPassword(user.Password) {
+		if !auth.NewRegex().IsValidPassword(user.Password) {
 			http.Error(w, "invalid password", http.StatusBadRequest)
 			return
 		}

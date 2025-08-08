@@ -509,20 +509,9 @@ func (rest Restful) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !auth.IsValidPassword(user.Password) {
-		http.Error(w, "invalid password", http.StatusBadRequest)
-		return
-	}
-
-	err = rest.Bussinesslogic.IDatabase.CheackUserByUsernameAndEmail(user.Username, user.Email)
+	err = rest.Bussinesslogic.SignUp(user.Username, user.Password, user.Email, user.StudentRole, user.ProfessorRole)
 	if err != nil {
-		http.Error(w, "Username or email already exists", http.StatusConflict)
-		return
-	}
-
-	err = rest.Bussinesslogic.IDatabase.InsertUser(user.Username, user.Password, user.Email, user.StudentRole, user.ProfessorRole)
-	if err != nil {
-		http.Error(w, "Something went wrong", http.StatusBadGateway)
+		http.Error(w, "username already exist or weak password", http.StatusBadRequest)
 		return
 	}
 

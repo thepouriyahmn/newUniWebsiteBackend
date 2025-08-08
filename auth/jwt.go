@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"regexp"
 	"strings"
 	"time"
 
@@ -24,11 +23,6 @@ var jwtkey = []byte("secret-key")
 type contextKey string
 
 const UserIDKey contextKey = "userID"
-
-func IsValidPassword(password string) bool {
-	re := regexp.MustCompile(`^[a-zA-Z0-9]{6,}$`)
-	return re.MatchString(password)
-}
 
 func GenerateJWT(id int, username string, roleSlice []string) string {
 

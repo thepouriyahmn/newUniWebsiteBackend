@@ -1,17 +1,27 @@
 package bussinessLogic
 
+import (
+	"errors"
+	"fmt"
+)
+
 type Bussinesslogic struct {
-	ICache    ICache
-	IDatabase IDatabase
-	IVerify   ISendVerificationCode
+	ICache      ICache
+	IDatabase   IDatabase
+	IVerify     ISendVerificationCode
+	IValidation IPassValidation
+}
+type IbussinessLogic interface {
+	SignUp(username, email, password string, professorRole, studentRole bool) error
 }
 
-func NewBussinessLogic(database IDatabase, cache ICache, verify ISendVerificationCode) Bussinesslogic {
+func NewBussinessLogic(database IDatabase, cache ICache, verify ISendVerificationCode, passValidation IPassValidation) Bussinesslogic {
 	return Bussinesslogic{
 		//IProtocol: protocol,
-		IDatabase: database,
-		ICache:    cache,
-		IVerify:   verify,
+		IDatabase:   database,
+		ICache:      cache,
+		IVerify:     verify,
+		IValidation: passValidation,
 	}
 
 }
@@ -22,6 +32,9 @@ type ISendVerificationCode interface {
 type ICache interface {
 	CacheTerms(terms []string)
 	GetCacheValue(key string) (string, error)
+}
+type IPassValidation interface {
+	IsValidPassword(password string) bool
 }
 
 type IDatabase interface {
@@ -52,25 +65,23 @@ type IDatabase interface {
 	InsertUnitForStudent(userid int, classid int) error
 }
 
-// type IProtocol interface {
-// 	ShowPickedUnitsForStudent(w http.ResponseWriter, r *http.Request)
-// 	SignUp(w http.ResponseWriter, r *http.Request)
-// 	Login(w http.ResponseWriter, r *http.Request)
-// 	Verify(w http.ResponseWriter, r *http.Request)
-// 	GetAllProfessors(w http.ResponseWriter, r *http.Request)
-// 	GetTerms(w http.ResponseWriter, r *http.Request)
-// 	AddProfessor(w http.ResponseWriter, r *http.Request)
-// 	GetAllUsers(w http.ResponseWriter, r *http.Request)
-// 	InsertLesson(w http.ResponseWriter, r *http.Request)
-// 	InsertClass(w http.ResponseWriter, r *http.Request)
-// 	DeleteLesson(w http.ResponseWriter, r *http.Request)
-// 	GetAllLessons(w http.ResponseWriter, r *http.Request)
-// 	GetUsersByRole(w http.ResponseWriter, r *http.Request)
-// 	AddMark(w http.ResponseWriter, r *http.Request)
-// 	GetStudentsForProfessor(w http.ResponseWriter, r *http.Request)
-// 	AddStudentUnit(w http.ResponseWriter, r *http.Request)
-// 	DelStudentUnit(w http.ResponseWriter, r *http.Request)
-// 	ShowClasses(w http.ResponseWriter, r *http.Request)
-// 	DeleteClass(w http.ResponseWriter, r *http.Request)
-// 	AddStudent(w http.ResponseWriter, r *http.Request)
-// }
+func (b Bussinesslogic) SignUp(username, password, email string, professorRole, studentRole bool) error {
+	fmt.Println(password)
+	valid := b.IValidation.IsValidPassword(password)
+	if !valid {
+		fmt.Println("pass validation wrong")
+		return errors.New("")
+	}
+	err := b.IDatabase.CheackUserByUsernameAndEmail(username, email)
+	if err != nil {
+		fmt.Println("username,email validation wrong")
+		return err
+	}
+
+	err = b.IDatabase.InsertUser(username, password, email, studentRole, professorRole)
+	if err != nil {
+		fmt.Println("insert wrong")
+		return err
+	}
+	return nil
+}

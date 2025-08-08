@@ -1,6 +1,7 @@
 package main
 
 import (
+	"UniWebsite/auth"
 	"UniWebsite/bussinessLogic"
 	"UniWebsite/cache"
 	"UniWebsite/databases"
@@ -15,12 +16,15 @@ import (
 func main() {
 	var Icache cache.ICache
 	var Idatabase databases.IDatabase
+	var IPassValidation auth.IPassValidation
 
 	var Iverify verification.ISendVerificationCode
 	useCache := "redis"
 	useDatabase := "Mysql"
+	usePassValidation := "regex"
 
 	VerifyType := "email"
+
 	redis := cache.NewRedis("localhost:6379")
 	if useCache == "redis" {
 		Icache = redis
@@ -42,8 +46,12 @@ func main() {
 		fmt.Println("Database is nil. Exiting.")
 		os.Exit(1)
 	}
+	regex := auth.NewRegex()
+	if usePassValidation == "regex" {
+		IPassValidation = regex
+	}
 
-	logic := bussinessLogic.NewBussinessLogic(Idatabase, Icache, Iverify)
+	logic := bussinessLogic.NewBussinessLogic(Idatabase, Icache, Iverify, IPassValidation)
 	r := restful.NewRestFul(logic)
 	r.Run()
 
