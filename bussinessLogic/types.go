@@ -1,5 +1,10 @@
 package bussinessLogic
 
+import (
+	"sync"
+	"time"
+)
+
 type Professor struct {
 	Name string `json:"name"`
 	Id   int    `json:"id"`
@@ -54,3 +59,10 @@ type Student2 struct {
 	Date    string `json:"date"`
 	ClassId int    `json:"classId"`
 }
+type CodeInfo struct {
+	Code      string
+	CreatedAt time.Time
+}
+
+var mu sync.Mutex
+var verificationCodes = make(map[int]CodeInfo)
