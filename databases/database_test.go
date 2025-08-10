@@ -16,7 +16,7 @@ func SetupDatabase(t *testing.T) Mysql {
 
 func TestInsertUser(t *testing.T) {
 	db := SetupDatabase(t)
-	username := "paradise"
+	username := "test00"
 	password := "123qweQWE"
 	email := "test@example.com"
 
