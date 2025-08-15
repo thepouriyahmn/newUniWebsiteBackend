@@ -17,12 +17,12 @@ func main() {
 	var Icache cache.ICache
 	var Idatabase databases.IDatabase
 	var IPassValidation auth.IPassValidation
-
+	var IToken auth.IToken
 	var Iverify verification.ISendVerificationCode
 	useCache := "redis"
 	useDatabase := "Mysql"
 	usePassValidation := "regex"
-
+	useToken := "jwt"
 	VerifyType := "email"
 
 	redis := cache.NewRedis("localhost:6379")
@@ -50,8 +50,12 @@ func main() {
 	if usePassValidation == "regex" {
 		IPassValidation = regex
 	}
+	jwt := auth.NewJwt()
+	if useToken == "jwt" {
+		IToken = jwt
+	}
 
-	logic := bussinessLogic.NewBussinessLogic(Idatabase, Icache, Iverify, IPassValidation)
+	logic := bussinessLogic.NewBussinessLogic(Idatabase, Icache, Iverify, IPassValidation, IToken)
 	r := restful.NewRestFul(logic)
 	r.Run()
 

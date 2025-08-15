@@ -24,7 +24,18 @@ type contextKey string
 
 const UserIDKey contextKey = "userID"
 
-func GenerateJWT(id int, username string, roleSlice []string) string {
+type Jwt struct {
+}
+
+func NewJwt() Jwt {
+	return Jwt{}
+}
+
+type IToken interface {
+	GenerateToken(id int, username string, roleSlice []string) string
+}
+
+func (j Jwt) GenerateToken(id int, username string, roleSlice []string) string {
 
 	if len(roleSlice) == 0 {
 		roleSlice = []string{}

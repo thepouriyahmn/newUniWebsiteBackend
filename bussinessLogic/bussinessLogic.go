@@ -1,7 +1,6 @@
 package bussinessLogic
 
 import (
-	"UniWebsite/auth"
 	"errors"
 	"fmt"
 	"time"
@@ -12,6 +11,7 @@ type Bussinesslogic struct {
 	IDatabase   IDatabase
 	IVerify     ISendVerificationCode
 	IValidation IPassValidation
+	IToken      IToken
 }
 
 type IbussinessLogic interface {
@@ -37,12 +37,13 @@ type IbussinessLogic interface {
 	GetAllTerms() ([]string, error)
 }
 
-func NewBussinessLogic(database IDatabase, cache ICache, verify ISendVerificationCode, passValidation IPassValidation) Bussinesslogic {
+func NewBussinessLogic(database IDatabase, cache ICache, verify ISendVerificationCode, passValidation IPassValidation, token IToken) Bussinesslogic {
 	return Bussinesslogic{
 		IDatabase:   database,
 		ICache:      cache,
 		IVerify:     verify,
 		IValidation: passValidation,
+		IToken:      token,
 	}
 }
 
@@ -57,6 +58,9 @@ type ICache interface {
 
 type IPassValidation interface {
 	IsValidPassword(password string) bool
+}
+type IToken interface {
+	GenerateToken(id int, username string, roleSlice []string) string
 }
 
 type IDatabase interface {
@@ -139,7 +143,7 @@ func (b Bussinesslogic) Verify(id int, code string) (string, error) {
 		return "", err
 	}
 
-	tokenStr := auth.GenerateJWT(id, username, roleSlice)
+	tokenStr := b.IToken.GenerateToken(id, username, roleSlice)
 	fmt.Println("token created: ", tokenStr)
 
 	mu.Lock()
