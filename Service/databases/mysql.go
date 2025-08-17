@@ -76,7 +76,7 @@ func (m Mysql) CheackUserByUserNameAndPassword(username, pass string) (int, stri
 	fmt.Println("enter")
 	var usernameDB, passwordDB, email string
 	var id int
-
+	fmt.Println("username: ", username)
 	row := m.db.QueryRow("SELECT username,password,ID,email FROM users WHERE username = ?", username)
 	err := row.Scan(&usernameDB, &passwordDB, &id, &email)
 	fmt.Println("dbUsername: ", usernameDB, "dbpass: ", passwordDB)

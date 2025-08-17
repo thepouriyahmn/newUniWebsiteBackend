@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sync"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -46,7 +45,7 @@ func (rest Restful) Run() {
 	http.HandleFunc("/pickedUnits", auth.StudentJwtMiddleware(rest.pickedUnits))
 	http.HandleFunc("/delStudentUnit", auth.StudentJwtMiddleware(rest.delStudentUnit))
 
-	err := http.ListenAndServe(":8081", nil)
+	err := http.ListenAndServe(":8083", nil)
 	if err != nil {
 		fmt.Printf("reading error: %v", err)
 		panic(err)
@@ -419,6 +418,7 @@ func (rest Restful) GetTerms(w http.ResponseWriter, r *http.Request) {
 
 // Authentication Methods
 func (rest Restful) SignUp(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("api works")
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST allowed", http.StatusMethodNotAllowed)
 		return
@@ -457,9 +457,6 @@ type CodeInfo struct {
 	CreatedAt time.Time
 }
 
-var mu sync.Mutex
-var verificationCodes = make(map[int]CodeInfo)
-
 func (rest Restful) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST allowed", http.StatusMethodNotAllowed)
@@ -480,6 +477,7 @@ func (rest Restful) Login(w http.ResponseWriter, r *http.Request) {
 		Password string `json:"password"`
 	}
 	var claimedUser ClaimedUser
+	fmt.Println("username: ", claimedUser.Username)
 
 	err := json.NewDecoder(r.Body).Decode(&claimedUser)
 	if err != nil {
