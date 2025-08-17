@@ -2,6 +2,7 @@ package handler
 
 import (
 	"api/middlewear"
+	"api/service"
 	"bytes"
 	"fmt"
 	"io"
@@ -10,11 +11,13 @@ import (
 
 type Handler struct {
 	serviceURL string
+	service    service.Services
 }
 
-func NewHandler(url string) Handler {
+func NewHandler(url string, service service.Services) Handler {
 	return Handler{
 		serviceURL: url,
+		service:    service,
 	}
 }
 func (h Handler) RunApi() {
@@ -51,17 +54,21 @@ func (h Handler) RunApi() {
 
 func (h Handler) ProxySignUp(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("here")
-	resp, err := http.Post("http://"+h.serviceURL+"/signUp", "application/json", r.Body)
+	// resp, err := http.Post("http://"+h.serviceURL+"/signUp", "application/json", r.Body)
+	// if err != nil {
+	// 	fmt.Println("err is: ", err)
+	// 	http.Error(w, "business service unavailable", http.StatusServiceUnavailable)
+	// 	return
+	// }
+	// fmt.Println("done")
+	// defer resp.Body.Close()
+	err := h.service.SignUp(r.Body)
 	if err != nil {
-		fmt.Println("err is: ", err)
-		http.Error(w, "business service unavailable", http.StatusServiceUnavailable)
-		return
+		http.Error(w, "Error reading request", http.StatusBadRequest)
+		fmt.Println(err)
 	}
-	fmt.Println("done")
-	defer resp.Body.Close()
-
-	w.WriteHeader(resp.StatusCode)
-	io.Copy(w, resp.Body)
+	// w.WriteHeader(resp.StatusCode)
+	// io.Copy(w, resp.Body)
 }
 
 func (h Handler) ProxyLogin(w http.ResponseWriter, r *http.Request) {

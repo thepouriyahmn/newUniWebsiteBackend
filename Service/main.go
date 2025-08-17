@@ -24,6 +24,7 @@ func main() {
 	usePassValidation := "regex"
 	useToken := "jwt"
 	VerifyType := "email"
+	serviceConn := "nats"
 
 	redis := cache.NewRedis("localhost:6379")
 	if useCache == "redis" {
@@ -57,6 +58,11 @@ func main() {
 
 	logic := bussinessLogic.NewBussinessLogic(Idatabase, Icache, Iverify, IPassValidation, IToken)
 	r := restful.NewRestFul(logic)
-	r.Run()
+	nats := restful.NewNats(logic)
+	if serviceConn == "nats" {
+		nats.Run()
+	} else {
+		r.Run()
+	}
 
 }
