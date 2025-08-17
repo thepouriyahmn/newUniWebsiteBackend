@@ -11,6 +11,8 @@ import (
 	"github.com/go-redis/redis"
 )
 
+var AllowedIP string = "http://localhost:8081"
+
 type Claims struct {
 	Username string
 	Role     []string
@@ -61,7 +63,7 @@ func (j Jwt) GenerateToken(id int, username string, roleSlice []string) string {
 func NormalJwtmiddleWare(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// CORS headers
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", AllowedIP)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
@@ -90,7 +92,7 @@ func NormalJwtmiddleWare(next http.HandlerFunc) http.HandlerFunc {
 func AdminJwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// CORS headers
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", AllowedIP)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
@@ -141,7 +143,7 @@ func AdminJwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 func StudentJwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// CORS headers
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", AllowedIP)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
@@ -192,7 +194,7 @@ func StudentJwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
 func ProfessorjwtMiddleware3(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// CORS headers
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", AllowedIP)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
@@ -244,7 +246,7 @@ func ProfessorjwtMiddleware3(next http.HandlerFunc) http.HandlerFunc {
 func CheackOriginMiddleWare(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// CORS headers
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", AllowedIP)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 

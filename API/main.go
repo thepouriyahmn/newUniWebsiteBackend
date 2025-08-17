@@ -5,8 +5,8 @@ import (
 )
 
 func main() {
-	url := "localhost:8083"
-	api := handler.NewHandler(url)
+	serviceURL := "localhost:8083"
+	api := handler.NewHandler(serviceURL)
 	api.RunApi()
 
 }
