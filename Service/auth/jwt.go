@@ -60,6 +60,42 @@ func (j Jwt) GenerateToken(id int, username string, roleSlice []string) string {
 	}
 	return tokenString
 }
+
+// ValidateToken parses and validates a JWT token string and returns the claims.
+// It also checks whether the token is blocked in Redis.
+func ValidateToken(tokenStr string) (*Claims, error) {
+	claims := &Claims{}
+	if tokenStr == "" {
+		return nil, fmt.Errorf("missing token")
+	}
+	// Accept tokens with or without Bearer prefix
+	if strings.HasPrefix(strings.ToLower(tokenStr), "bearer ") {
+		tokenStr = strings.TrimSpace(strings.TrimPrefix(tokenStr, "Bearer "))
+	}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (interface{}, error) {
+		return jwtkey, nil
+	})
+	if err != nil || !tkn.Valid {
+		return nil, fmt.Errorf("unauthorized")
+	}
+
+	rdb := redis.NewClient(&redis.Options{Addr: "localhost:6379"})
+	blocked, err := rdb.Get(tokenStr).Result()
+	if err != redis.Nil && blocked == "blocked" {
+		return nil, fmt.Errorf("token blocked")
+	}
+	return claims, nil
+}
+
+func ClaimsHasRole(claims *Claims, role string) bool {
+	for _, r := range claims.Role {
+		if r == role {
+			return true
+		}
+	}
+	return false
+}
 func NormalJwtmiddleWare(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// CORS headers

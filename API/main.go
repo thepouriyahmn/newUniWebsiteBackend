@@ -8,15 +8,15 @@ import (
 func main() {
 	connService := "nats"
 	var Service service.Services
-	http := service.NewHttp()
-	nats := service.NewNats()
+	serviceURL := "localhost:8083"
+	httpAdapter := service.NewHttp(serviceURL)
+	natsAdapter := service.NewNats()
 	if connService == "nats" {
-		Service = nats
+		Service = natsAdapter
 	} else {
-		Service = http
+		Service = httpAdapter
 	}
 
-	serviceURL := "localhost:8083"
 	api := handler.NewHandler(serviceURL, Service)
 	api.RunApi()
 
