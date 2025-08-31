@@ -51,6 +51,13 @@ func (m Mysql) CheackUserByUsernameAndEmail(ClientUsername, ClientEmail string) 
 	return nil
 }
 func (m Mysql) InsertUser(username, pass, email string, studentRole, professorRole bool) error {
+	fmt.Println("user insert in mysql(main)")
+	err := m.CheackUserByUsernameAndEmail(username, email)
+	if err != nil {
+		fmt.Println("username or email exist")
+		return err
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
 	if err != nil {
 		fmt.Printf("reding error: %v", err)
@@ -73,6 +80,7 @@ func (m Mysql) InsertUser(username, pass, email string, studentRole, professorRo
 	return nil
 }
 func (m Mysql) CheackUserByUserNameAndPassword(username, pass string) (int, string, error) {
+	fmt.Println("using mysql for login")
 	fmt.Println("enter")
 	var usernameDB, passwordDB, email string
 	var id int
@@ -355,6 +363,7 @@ func (m Mysql) GetAllClassesByTerm(term string) ([]bussinessLogic.Classes, error
 		fmt.Println(classesSlice)
 
 	}
+	fmt.Println("classSlice: ", classesSlice)
 	return classesSlice, nil
 
 }
