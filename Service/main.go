@@ -4,8 +4,10 @@ import (
 	"UniWebsite/auth"
 	"UniWebsite/bussinessLogic"
 	"UniWebsite/cache"
+	restful "UniWebsite/conn"
 	"UniWebsite/databases"
-	"UniWebsite/restful"
+	messagebrokers "UniWebsite/messageBrokers"
+
 	"UniWebsite/verification"
 	"fmt"
 	"os"
@@ -14,17 +16,23 @@ import (
 )
 
 func main() {
+	var IconnService restful.Service
 	var Icache cache.ICache
-	var Idatabase databases.IDatabase
+	//var Idatabase databases.IDatabase
+	var SubDatabase databases.SubDatabase
+	var mainDatabase databases.MainDatabase
 	var IPassValidation auth.IPassValidation
 	var IToken auth.IToken
 	var Iverify verification.ISendVerificationCode
+	var IDatabaseMessageBroker messagebrokers.IMessageBroker
 	useCache := "redis"
-	useDatabase := "Mysql"
+	useSubDatabase := "mysql"
+	useMainDatabase := "mongo"
 	usePassValidation := "regex"
 	useToken := "jwt"
 	VerifyType := "email"
 	serviceConn := "nats"
+	databaseBroker := "nats"
 
 	redis := cache.NewRedis("localhost:6379")
 	if useCache == "redis" {
@@ -40,13 +48,29 @@ func main() {
 		fmt.Printf("reding error: %v", err)
 		os.Exit(1)
 	}
-	if useDatabase == "Mysql" {
-		Idatabase = Mysql
+
+	mongo := databases.NewMongo("mongodb://localhost:27017")
+	switch useSubDatabase {
+	case "mysql":
+		SubDatabase = Mysql
+	case "mongo":
+		SubDatabase = mongo
+	default:
+		fmt.Println("no ReadDatabase has been chosen")
+		panic("no ReadDatabase selected")
 	}
-	if Idatabase == nil {
-		fmt.Println("Database is nil. Exiting.")
-		os.Exit(1)
+	switch useMainDatabase {
+	case "mysql":
+		mainDatabase = Mysql
+
+	case "mongo":
+		mainDatabase = mongo
+
+	default:
+		fmt.Println("no WriteDatabase has been chosen")
+		panic("")
 	}
+
 	regex := auth.NewRegex()
 	if usePassValidation == "regex" {
 		IPassValidation = regex
@@ -56,13 +80,41 @@ func main() {
 		IToken = jwt
 	}
 
-	logic := bussinessLogic.NewBussinessLogic(Idatabase, Icache, Iverify, IPassValidation, IToken)
+	// Initialize message broker with SubDatabase
+	natsDatabase := messagebrokers.NewNats()
+	natsDatabase.ISubDatabase = SubDatabase
+
+	switch databaseBroker {
+	case "nats":
+		IDatabaseMessageBroker = natsDatabase
+
+	default:
+		fmt.Println("you have not choose valid databaseBroker")
+		panic("")
+	}
+
+	logic := bussinessLogic.NewBussinessLogic(mainDatabase, SubDatabase, IDatabaseMessageBroker, Icache, Iverify, IPassValidation, IToken)
 	r := restful.NewRestFul(logic)
 	nats := restful.NewNats(logic)
-	if serviceConn == "nats" {
-		nats.Run()
-	} else {
-		r.Run()
+
+	go IDatabaseMessageBroker.Run()
+
+	// if serviceConn == "nats" {
+	// //	nats.Run()
+	// 	IconnService = nats
+	// } else {
+	// 	r.Run()
+	// }
+	switch serviceConn {
+	case "nats":
+		IconnService = nats
+	case "http":
+		IconnService = r
+	default:
+		fmt.Println("you have not choose valid connServicer")
+		panic("")
 	}
+	// run
+	IconnService.Run()
 
 }
