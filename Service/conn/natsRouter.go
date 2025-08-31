@@ -12,10 +12,8 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-// نوع هندلر
 type HandlerFunc func(m *nats.Msg)
 
-// Router
 type Router struct {
 	Nc    *nats.Conn
 	Logic bussinessLogic.Bussinesslogic
@@ -105,10 +103,12 @@ func (r *Router) handleSignup(msg *nats.Msg) {
 	}
 	var user User
 	if err := json.Unmarshal(req.Body, &user); err != nil {
+		log.Println("error:", err)
 		respondErr(msg, 400, "bad_request", "invalid json body")
 		return
 	}
 	if err := r.Logic.SignUp(user.Username, user.Password, user.Email, user.StudentRole, user.ProfessorRole); err != nil {
+		log.Println(" error:", err)
 		respondErr(msg, 400, "signup_failed", "signup failed")
 		return
 	}

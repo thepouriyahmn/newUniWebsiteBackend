@@ -9,6 +9,14 @@ type Professor struct {
 	Name string `json:"name"`
 	Id   int    `json:"id"`
 }
+type Users struct {
+	Email       string `json:"id"`
+	Username    string `json:"username"`
+	Password    string `json:"password"`
+	StudentRole bool   `json:"studentRole"`
+
+	ProfessorRole bool `json:"professorRole"`
+}
 type User struct {
 	Id          int    `json:"id"`
 	Username    string `json:"username"`
